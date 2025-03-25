@@ -5,7 +5,8 @@ const STORAGE_KEYS = {
     PRODUCTS: 'products',
     CHANNELS: 'channels',
     USER_NFTS: 'user_nfts',
-    TRANSACTIONS: 'transactions'
+    TRANSACTIONS: 'transactions',
+    PURCHASED_NFTS: 'purchased_nfts'
 };
 
 // 初期データ
@@ -21,7 +22,8 @@ const initialData = {
             sales: 120,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=vegetables1',
             description: '山田農園で朝採れた新鮮な季節の野菜をデジタルアートで表現。',
-            channel_id: '1'
+            channel_id: '1',
+            sold: false
         },
         {
             id: '2',
@@ -32,7 +34,8 @@ const initialData = {
             sales: 85,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=apple1',
             description: '無農薬で育てた蜜入りりんごの収穫の瞬間を切り取ったアート作品。',
-            channel_id: '1'
+            channel_id: '1',
+            sold: false
         },
         {
             id: '3',
@@ -43,7 +46,8 @@ const initialData = {
             sales: 150,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=seasons1',
             description: '一年を通じて変化する農園の風景を四季折々で表現。',
-            channel_id: '1'
+            channel_id: '1',
+            sold: false
         },
         {
             id: '4',
@@ -54,7 +58,8 @@ const initialData = {
             sales: 95,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=traditional1',
             description: '代々受け継がれてきた伝統野菜の栽培方法と歴史を表現。',
-            channel_id: '1'
+            channel_id: '1',
+            sold: false
         },
         // 海辺の牧場のNFT
         {
@@ -66,7 +71,8 @@ const initialData = {
             sales: 110,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=sunrise1',
             description: '海辺の牧場で撮影された美しい朝焼けの風景。',
-            channel_id: '2'
+            channel_id: '2',
+            sold: false
         },
         {
             id: '6',
@@ -77,7 +83,8 @@ const initialData = {
             sales: 80,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=jersey1',
             description: '牧場のジャージー牛たちの日常を切り取った作品。',
-            channel_id: '2'
+            channel_id: '2',
+            sold: false
         },
         {
             id: '7',
@@ -88,7 +95,8 @@ const initialData = {
             sales: 130,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=harmony1',
             description: '潮風に揺れる牧草地の美しい風景を表現。',
-            channel_id: '2'
+            channel_id: '2',
+            sold: false
         },
         // 緑の大地農場のNFT
         {
@@ -100,7 +108,8 @@ const initialData = {
             sales: 140,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=harvest1',
             description: '広大な大地で育まれた作物の収穫風景。',
-            channel_id: '3'
+            channel_id: '3',
+            sold: false
         },
         {
             id: '9',
@@ -111,7 +120,8 @@ const initialData = {
             sales: 95,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=story1',
             description: '北海道の雄大な自然と農業の調和を表現。',
-            channel_id: '3'
+            channel_id: '3',
+            sold: false
         },
         {
             id: '10',
@@ -122,7 +132,8 @@ const initialData = {
             sales: 115,
             image_url: 'https://api.dicebear.com/7.x/shapes/svg?seed=spring1',
             description: '春を迎えた畑の目覚めを切り取った瞬間。',
-            channel_id: '3'
+            channel_id: '3',
+            sold: false
         }
     ],
     channels: [
@@ -259,19 +270,31 @@ export async function updateProfile(updates) {
 
 // 商品関連
 export async function fetchProducts() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+    const products = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+    const purchasedNfts = JSON.parse(localStorage.getItem(STORAGE_KEYS.PURCHASED_NFTS) || '[]');
+    
+    // 購入済みNFTの状態を反映
+    return products.map(product => ({
+        ...product,
+        sold: purchasedNfts.includes(product.id)
+    }));
 }
 
 export async function searchProducts(searchTerm) {
     const products = await fetchProducts();
     return products.filter(p => 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchTerm.toLowerCase())
+        !p.sold && (
+            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.location.toLowerCase().includes(searchTerm.toLowerCase())
+        )
     );
 }
 
 export async function filterProducts({ sortBy, region }) {
     let products = await fetchProducts();
+    
+    // 販売中のNFTのみをフィルタリング
+    products = products.filter(p => !p.sold);
     
     if (region) {
         products = products.filter(p => p.location.toLowerCase().includes(region.toLowerCase()));
@@ -301,7 +324,7 @@ export async function fetchChannels() {
 
 export async function getChannelProducts(channelId) {
     const products = await fetchProducts();
-    return products.filter(p => p.channel_id === channelId);
+    return products.filter(p => !p.sold && p.channel_id === channelId);
 }
 
 // NFT購入
@@ -312,6 +335,7 @@ export async function purchaseProduct(productId, paymentType) {
     const products = await fetchProducts();
     const product = products.find(p => p.id === productId);
     if (!product) throw new Error('商品が見つかりません。');
+    if (product.sold) throw new Error('この商品は既に購入されています。');
 
     // トランザクションの記録
     const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
@@ -336,6 +360,11 @@ export async function purchaseProduct(productId, paymentType) {
         products: product
     });
     localStorage.setItem(STORAGE_KEYS.USER_NFTS, JSON.stringify(userNfts));
+
+    // 購入済みNFTの記録
+    const purchasedNfts = JSON.parse(localStorage.getItem(STORAGE_KEYS.PURCHASED_NFTS) || '[]');
+    purchasedNfts.push(productId);
+    localStorage.setItem(STORAGE_KEYS.PURCHASED_NFTS, JSON.stringify(purchasedNfts));
 
     // ポイント決済の場合はポイントを減算
     if (paymentType === 'point') {

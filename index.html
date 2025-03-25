@@ -50,7 +50,7 @@
 
         <!-- ボトムナビゲーション -->
         <nav class="bottom-nav">
-            <a href="/index.html" class="nav-item active">
+            <a href="/" class="nav-item active">
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
@@ -69,7 +69,7 @@
         </nav>
     </div>
     <script type="module">
-        import { checkAuth, signOut } from './src/js/auth/auth-check.js';
+        import { checkAuth, handleSignOut } from './src/js/auth/auth-check.js';
         import { setupNavigation, updateNavigation } from './src/js/utils/navigation.js';
 
         async function init() {
@@ -78,7 +78,7 @@
             
             if (user) {
                 authButton.textContent = 'ログアウト';
-                authButton.addEventListener('click', signOut);
+                authButton.addEventListener('click', handleSignOut);
             } else {
                 authButton.textContent = 'ログイン';
                 authButton.addEventListener('click', () => {

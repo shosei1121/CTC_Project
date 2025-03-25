@@ -8,10 +8,15 @@ export async function checkAuth() {
 export async function requireAuth() {
     const user = await checkAuth();
     if (!user) {
-        window.location.href = '/auth.html';
+        window.location.href = '/src/pages/auth.html';
         return null;
     }
     return user;
+}
+
+export async function handleSignOut() {
+    await signOut();
+    window.location.href = '/src/pages/auth.html';
 }
 
 export { signOut };

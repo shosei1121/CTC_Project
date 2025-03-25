@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!grid) return;
 
         grid.innerHTML = products.map(product => `
-            <div class="product-card" data-id="${product.id}">
+            <div class="product-card ${product.sold ? 'sold' : ''}" data-id="${product.id}">
                 <div class="favorite-btn" data-product-id="${product.id}">❤️</div>
                 <img src="${product.image_url}" alt="${product.name}" class="product-image">
                 <div class="product-info">
@@ -39,7 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <span class="stars">⭐️ ${product.rating}</span>
                         <span class="sales">販売数: ${product.sales}</span>
                     </div>
-                    <p class="product-price">¥${product.price.toLocaleString()}</p>
+                    <p class="product-price">
+                        ${product.sold ? '<span class="sold-label">SOLD OUT</span>' : `¥${product.price.toLocaleString()}`}
+                    </p>
                 </div>
             </div>
         `).join('');
