@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ - CTCアプリケーション</title>
+  <script type="module" crossorigin src="/assets/mypage-vGjk3qun.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/local-storage-Bd1VrlsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/navigation-UNvGwtiV.js">
+  <link rel="modulepreload" crossorigin href="/assets/web3-auth-wSHOpuom.js">
+  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
+  <link rel="stylesheet" crossorigin href="/assets/mypage-B8JCtvwD.css">
+</head>
+<body>
+    <div id="app">
+        <main class="mypage-container">
+            <!-- プロフィールセクション -->
+            <section class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="プロフィール" id="profileAvatar" class="clickable">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name-container">
+                            <h1 class="profile-name" id="profileName">ユーザー名</h1>
+                            <button class="edit-name-btn" id="editNameBtn">✏️</button>
+                        </div>
+                        <p class="profile-email" id="profileEmail">email@example.com</p>
+                        <div class="profile-points">
+                            <span class="points-icon">🏆</span>
+                            <span class="points-value" id="userPoints">0</span>
+                            <span class="points-label">ポイント</span>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="connect-metamask-btn" id="connectMetamaskBtn">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="metamask-icon">
+                                MetaMaskと連携
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NFTコレクションセクション -->
+            <section class="nft-section">
+                <h2 class="section-title">所有NFT</h2>
+                <div class="nft-grid" id="nftGrid">
+                    <!-- NFTはJavaScriptで動的に追加 -->
+                </div>
+            </section>
+
+            <!-- いいねしたNFTセクション -->
+            <section class="nft-section">
+                <h2 class="section-title">いいねしたNFT</h2>
+                <div class="nft-grid" id="likedNftGrid">
+                    <!-- いいねしたNFTはJavaScriptで動的に追加 -->
+                </div>
+            </section>
+
+            <!-- フォロー中の生産者セクション -->
+            <section class="followed-channels-section">
+                <h2 class="section-title">フォロー中の生産者</h2>
+                <div class="followed-channels" id="followedChannels">
+                    <!-- フォロー中の生産者はJavaScriptで動的に追加 -->
+                </div>
+            </section>
+
+            <!-- 取引履歴セクション -->
+            <section class="history-section">
+                <h2 class="section-title">取引履歴</h2>
+                <div class="history-list" id="historyList">
+                    <!-- 取引履歴はJavaScriptで動的に追加 -->
+                </div>
+            </section>
+        </main>
+
+        <!-- プロフィール編集モーダル -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>プロフィール編集</h2>
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editUsername">ユーザー名</label>
+                        <input type="text" id="editUsername" required>
+                    </div>
+                    <button type="submit" class="submit-btn">更新</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- アバター編集モーダル -->
+        <div id="editAvatarModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>プロフィール画像の変更</h2>
+                <div class="avatar-upload">
+                    <div class="avatar-preview">
+                        <img id="avatarPreview" alt="プレビュー">
+                    </div>
+                    <div class="form-group">
+                        <label for="avatarInput" class="file-input-label">
+                            画像を選択
+                            <input type="file" id="avatarInput" accept="image/*" class="file-input">
+                        </label>
+                        <p class="file-help">5MB以下の画像ファイルを選択してください</p>
+                    </div>
+                    <button id="saveAvatarBtn" class="submit-btn" disabled>保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボトムナビゲーション -->
+        <nav class="bottom-nav">
+            <a href="/" class="nav-item">
+                <i class="nav-icon">🏠</i>
+                <span>ホーム</span>
+            </a>
+            <a href="/src/pages/market.html" class="nav-item">
+                <i class="nav-icon">🛍️</i>
+                <span>マーケット</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="nav-icon">🔧</i>
+                <span>ツール</span>
+            </a>
+            <a href="/src/pages/mypage.html" class="nav-item active">
+                <i class="nav-icon">👤</i>
+                <span>マイページ</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

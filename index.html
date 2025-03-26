@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTCアプリケーション</title>
-    <link rel="stylesheet" href="/src/styles/styles.css">
+    <link rel="stylesheet" href="./src/styles/styles.css">
 </head>
 <body>
     <div id="app">
@@ -54,7 +54,7 @@
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="/src/pages/market.html" class="nav-item">
+            <a href="/market" class="nav-item">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -62,7 +62,7 @@
                 <i class="nav-icon">🔧</i>
                 <span>ツール</span>
             </a>
-            <a href="/src/pages/mypage.html" class="nav-item">
+            <a href="/mypage" class="nav-item">
                 <i class="nav-icon">👤</i>
                 <span>マイページ</span>
             </a>
@@ -82,7 +82,7 @@
             } else {
                 authButton.textContent = 'ログイン';
                 authButton.addEventListener('click', () => {
-                    window.location.href = '/src/pages/auth.html';
+                    window.location.href = '/auth';
                 });
             }
 
@@ -92,6 +92,6 @@
 
         init();
     </script>
-    <script type="module" src="/src/js/script.js"></script>
+    <script type="module" src="./src/js/script.js"></script>
 </body>
 </html>

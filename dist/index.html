@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTCアプリケーション</title>
+  <script type="module" crossorigin src="/assets/main-DBwXDC2c.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/local-storage-Bd1VrlsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/navigation-UNvGwtiV.js">
+  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ホーム画面 -->
+        <main class="home-container">
+            <h1 class="main-title">ようこそ！<br>CTCアプリケーションへ！</h1>
+            
+            <div class="auth-button">
+                <button id="authButton" class="login-btn">ログイン</button>
+            </div>
+
+            <!-- タブメニュー -->
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="notices">お知らせ</button>
+                    <button class="tab-btn" data-tab="news">ニュース</button>
+                    <button class="tab-btn" data-tab="events">イベント</button>
+                </div>
+
+                <!-- タブコンテンツ -->
+                <div class="tab-content active" id="notices">
+                    <div class="notice-card">
+                        <span class="date">2024/03/20</span>
+                        <h3>重要：システムメンテナンスのお知らせ</h3>
+                        <p>システムの安定性向上のため、以下の日程でメンテナンスを実施いたします。</p>
+                        <p>日時：3月25日午前2時～午前5時</p>
+                    </div>
+                </div>
+                <div class="tab-content" id="news">
+                    <div class="news-card">
+                        <h3>最新ニュース</h3>
+                        <p>現在、新着ニュースはありません。</p>
+                    </div>
+                </div>
+                <div class="tab-content" id="events">
+                    <div class="event-card">
+                        <h3>開催予定のイベント</h3>
+                        <p>現在、予定されているイベントはありません。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ボトムナビゲーション -->
+        <nav class="bottom-nav">
+            <a href="/" class="nav-item active">
+                <i class="nav-icon">🏠</i>
+                <span>ホーム</span>
+            </a>
+            <a href="/src/pages/market.html" class="nav-item">
+                <i class="nav-icon">🛍️</i>
+                <span>マーケット</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="nav-icon">🔧</i>
+                <span>ツール</span>
+            </a>
+            <a href="/src/pages/mypage.html" class="nav-item">
+                <i class="nav-icon">👤</i>
+                <span>マイページ</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

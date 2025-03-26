@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マーケット - CTCアプリケーション</title>
+  <script type="module" crossorigin src="/assets/market-CZjC2MeO.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/local-storage-Bd1VrlsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/navigation-UNvGwtiV.js">
+  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
+  <link rel="stylesheet" crossorigin href="/assets/market-CxHyg_A5.css">
+</head>
+<body>
+    <div id="app">
+        <main class="market-container">
+            <!-- チャンネルが選択されていない場合のみ表示 -->
+            <div id="marketHome">
+                <!-- おすすめチャンネルセクション -->
+                <section class="featured-channels">
+                    <h2 class="section-title">おすすめ生産者</h2>
+                    <div class="channel-list">
+                        <!-- チャンネルはJavaScriptで動的に追加 -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- フィルターセクション -->
+            <section class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-sort="name">名前順</button>
+                    <button class="filter-btn" data-sort="rating">評価順</button>
+                    <button class="filter-btn" data-sort="price">価格順</button>
+                </div>
+                <select class="region-select">
+                    <option value="">全ての地域</option>
+                    <option value="hokkaido">北海道</option>
+                    <option value="tohoku">東北</option>
+                    <option value="kanto">関東</option>
+                    <option value="chubu">中部</option>
+                    <option value="kinki">近畿</option>
+                    <option value="chugoku">中国</option>
+                    <option value="shikoku">四国</option>
+                    <option value="kyushu">九州</option>
+                </select>
+            </section>
+
+            <!-- 商品グリッド -->
+            <section class="product-grid" id="productGrid">
+                <!-- 商品はJavaScriptで動的に追加 -->
+                <!-- 商品テンプレート例 -->
+                <div class="product-card">
+                    <div class="product-actions">
+                        <button class="like-button" data-product-id="${product.id}">
+                            <span class="like-icon">♡</span>
+                            <span class="like-count">0</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ボトムナビゲーション -->
+        <nav class="bottom-nav">
+            <a href="/" class="nav-item">
+                <i class="nav-icon">🏠</i>
+                <span>ホーム</span>
+            </a>
+            <a href="/src/pages/market.html" class="nav-item active">
+                <i class="nav-icon">🛍️</i>
+                <span>マーケット</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="nav-icon">🔧</i>
+                <span>ツール</span>
+            </a>
+            <a href="/src/pages/mypage.html" class="nav-item">
+                <i class="nav-icon">👤</i>
+                <span>マイページ</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>
