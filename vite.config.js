@@ -7,17 +7,28 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
+        index: resolve(__dirname, 'index.html'),
         market: resolve(__dirname, 'src/pages/market.html'),
         mypage: resolve(__dirname, 'src/pages/mypage.html'),
         auth: resolve(__dirname, 'src/pages/auth.html')
       }
     },
     assetsDir: 'assets',
-    sourcemap: true
+    sourcemap: true,
+    copyPublicDir: true,
+    emptyOutDir: true
+  },
+  experimental: {
+    renderBuiltUrl(filename, { hostType, type }) {
+      if (type === 'public' || type === 'asset') {
+        return '/' + filename
+      }
+      return filename
+    }
   },
   server: {
-    port: 8080
+    port: 8080,
+    historyApiFallback: true
   },
   resolve: {
     alias: {
