@@ -47,3 +47,4 @@ import{i as v,f as g,a as u,b as p,g as $}from"./local-storage-Bd1VrlsT.js";impo
                     </div>
                 </div>
             `,a.insertBefore(s,a.firstChild)}}await Promise.all([f(),h(),c(d)]);const m=document.querySelectorAll(".filter-btn");m.forEach(t=>{t.addEventListener("click",async()=>{m.forEach(i=>i.classList.remove("active")),t.classList.add("active");const e=t.dataset.sort,a=document.querySelector(".region-select").value;let s=await p({sortBy:e,region:a});n&&(s=s.filter(i=>i.channel_id===n)),c(s)})});const r=document.querySelector(".region-select");r==null||r.addEventListener("change",async t=>{const e=t.target.value,a=document.querySelector(".filter-btn.active").dataset.sort;let s=await p({sortBy:a,region:e});n&&(s=s.filter(i=>i.channel_id===n)),c(s)})});
+//# sourceMappingURL=market-CZjC2MeO.js.map

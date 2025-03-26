@@ -12,7 +12,9 @@ export default defineConfig({
         mypage: resolve(__dirname, 'src/pages/mypage.html'),
         auth: resolve(__dirname, 'src/pages/auth.html')
       }
-    }
+    },
+    assetsDir: 'assets',
+    sourcemap: true
   },
   server: {
     port: 8080
@@ -21,5 +23,8 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src')
     }
+  },
+  optimizeDeps: {
+    include: ['@supabase/supabase-js']
   }
 });

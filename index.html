@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTCアプリケーション</title>
-    <link rel="stylesheet" href="./src/styles/styles.css">
+    <link rel="stylesheet" href="/src/styles/styles.css">
 </head>
 <body>
     <div id="app">
@@ -69,29 +69,33 @@
         </nav>
     </div>
     <script type="module">
-        import { checkAuth, handleSignOut } from './src/js/auth/auth-check.js';
-        import { setupNavigation, updateNavigation } from './src/js/utils/navigation.js';
+        import { checkAuth, handleSignOut } from '/src/js/auth/auth-check.js';
+        import { setupNavigation, updateNavigation } from '/src/js/utils/navigation.js';
 
         async function init() {
-            const user = await checkAuth();
-            const authButton = document.getElementById('authButton');
-            
-            if (user) {
-                authButton.textContent = 'ログアウト';
-                authButton.addEventListener('click', handleSignOut);
-            } else {
-                authButton.textContent = 'ログイン';
-                authButton.addEventListener('click', () => {
-                    window.location.href = '/auth';
-                });
-            }
+            try {
+                const user = await checkAuth();
+                const authButton = document.getElementById('authButton');
+                
+                if (user) {
+                    authButton.textContent = 'ログアウト';
+                    authButton.addEventListener('click', handleSignOut);
+                } else {
+                    authButton.textContent = 'ログイン';
+                    authButton.addEventListener('click', () => {
+                        window.location.href = '/auth';
+                    });
+                }
 
-            setupNavigation();
-            updateNavigation();
+                setupNavigation();
+                updateNavigation();
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
         }
 
         init();
     </script>
-    <script type="module" src="./src/js/script.js"></script>
+    <script type="module" src="/src/js/script.js"></script>
 </body>
 </html>
