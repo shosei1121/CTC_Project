@@ -1,31 +1,46 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import fs from 'fs';
+import path from 'path';
+
+// HTMLファイルをコピーする関数
+function copyHtmlPlugin() {
+  return {
+    name: 'copy-html-plugin',
+    closeBundle() {
+      // src/pages内のHTMLファイルをdistディレクトリにコピー
+      const pagesDir = resolve(__dirname, 'src/pages');
+      const distDir = resolve(__dirname, 'dist');
+      
+      if (fs.existsSync(pagesDir)) {
+        const files = fs.readdirSync(pagesDir);
+        files.forEach(file => {
+          if (file.endsWith('.html')) {
+            const srcFile = path.join(pagesDir, file);
+            const destFile = path.join(distDir, file);
+            fs.copyFileSync(srcFile, destFile);
+            console.log(`Copied ${srcFile} to ${destFile}`);
+          }
+        });
+      }
+    }
+  };
+}
 
 export default defineConfig({
   base: '/',
   build: {
     outDir: 'dist',
-    rollupOptions: {
-      input: {
-        index: resolve(__dirname, 'index.html'),
-        market: resolve(__dirname, 'src/pages/market.html'),
-        mypage: resolve(__dirname, 'src/pages/mypage.html'),
-        auth: resolve(__dirname, 'src/pages/auth.html')
-      }
-    },
+    emptyOutDir: true,
     assetsDir: 'assets',
     sourcemap: true,
-    copyPublicDir: true,
-    emptyOutDir: true
-  },
-  experimental: {
-    renderBuiltUrl(filename, { hostType, type }) {
-      if (type === 'public' || type === 'asset') {
-        return '/' + filename
+    rollupOptions: {
+      input: {
+        index: resolve(__dirname, 'index.html')
       }
-      return filename
     }
   },
+  plugins: [copyHtmlPlugin()],
   server: {
     port: 8080,
     historyApiFallback: true
