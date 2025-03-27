@@ -166,6 +166,28 @@ function copyFolderRecursive(source, target) {
   });
 }
 
+function copyAssetsPlugin() {
+  return {
+    name: 'copy-assets-plugin',
+    closeBundle() {
+      // CSSファイルをdist/assetsにコピー
+      const stylesDir = resolve(__dirname, 'src/styles');
+      const distAssetsDir = resolve(__dirname, 'dist/assets');
+      
+      if (fs.existsSync(stylesDir) && fs.existsSync(distAssetsDir)) {
+        fs.readdirSync(stylesDir).forEach(file => {
+          if (file.endsWith('.css')) {
+            const srcFile = path.join(stylesDir, file);
+            const destFile = path.join(distAssetsDir, file);
+            fs.copyFileSync(srcFile, destFile);
+            console.log(`Copied ${file} to assets directory`);
+          }
+        });
+      }
+    }
+  };
+}
+
 export default defineConfig({
   base: '/',  // 絶対パスを使用
   build: {
@@ -180,7 +202,7 @@ export default defineConfig({
     },
     cssCodeSplit: true
   },
-  plugins: [copyHtmlPlugin(), preserveFolderStructurePlugin()],
+  plugins: [copyHtmlPlugin(), preserveFolderStructurePlugin(), copyAssetsPlugin()],
   server: {
     port: 8080,
     open: true,

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳細 - CTCアプリケーション</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/market.css">
+
+  <!-- インライン主要スタイル -->
+  <style>
+    /* リセットとベーススタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    -webkit-text-size-adjust: 100%;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* メインコンテナ */
+.home-container,
+.market-container,
+.mypage-container {
+    padding: 16px;
+    flex: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 70px; /* ボトムナビの高さ分 */
+}
+
+.main-title {
+    text-align: center;
+    font-size: 20px;
+    margin: 16px 0;
+    line-height: 1.4;
+}
+
+/* 認証ボタン */
+.auth-button {
+    text-align: center;
+    margin: 16px 0;
+}
+
+.login-btn {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #357abd;
+}
+
+/* タブメニュー */
+.tab-container {
+    margin-top: 24px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.tab-btn.active {
+    color: #4a90e2;
+    border-bottom: 2px solid #4a90e2;
+}
+
+/* タブコンテンツ */
+.tab-content {
+    display: none;
+    padding: 16px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notice-card, .news-card, .event-card {
+    background: white;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.date {
+    color: #666;
+    font-size: 12px;
+}
+
+/* ボトムナビゲーション */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    font-size: 11px;
+    padding: 4px;
+}
+
+.nav-item.active {
+    color: #4a90e2;
+}
+
+.nav-icon {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+/* モーダル共通スタイル */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    margin: 20px auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-btn {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 480px) {
+    .home-container,
+    .market-container,
+    .mypage-container {
+        padding: 12px;
+    }
+
+    .main-title {
+        font-size: 18px;
+    }
+
+    .tab-btn {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .modal-content {
+        margin: 10px;
+        padding: 16px;
+        width: calc(100% - 20px);
+    }
+}
+  </style>
+</head>
+<body>
+    <div id="app">
+        <main class="market-container">
+            <!-- 戻るボタン -->
+            <button class="back-btn" id="backButton">← 戻る</button>
+
+            <div class="product-detail">
+                <div class="detail-image-container">
+                    <img src="" alt="" class="detail-image" id="productImage">
+                    <button class="detail-like-btn" id="likeButton">❤️</button>
+                </div>
+                <div class="detail-info">
+                    <h2 class="detail-name" id="productName"></h2>
+                    <p class="detail-location" id="productLocation"></p>
+                    <p class="detail-price" id="productPrice"></p>
+                    <div class="detail-rating" id="productRating"></div>
+                    
+                    <!-- 農家情報セクション -->
+                    <div class="farmer-info" id="farmerInfo">
+                        <div class="farmer-header">
+                            <img src="" alt="" class="farmer-avatar" id="farmerAvatar">
+                            <div class="farmer-details">
+                                <h3 class="farmer-name" id="farmerName"></h3>
+                                <p class="farmer-location" id="farmerLocation"></p>
+                            </div>
+                            <button class="follow-btn" id="followButton">フォロー</button>
+                        </div>
+                        <p class="farmer-description" id="farmerDescription"></p>
+                        <div class="farmer-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">創業</span>
+                                <span class="stat-value" id="farmerEstablished"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">農法</span>
+                                <span class="stat-value" id="farmerStyle"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">専門分野</span>
+                                <span class="stat-value" id="farmerSpecialties"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-divider"></div>
+                    <p class="detail-description" id="productDescription"></p>
+                    <button class="buy-btn" id="buyButton">購入する</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 決済モーダル -->
+        <div id="paymentModal" class="modal">
+            <div class="modal-content payment-modal">
+                <span class="close-btn">&times;</span>
+                <h2 class="payment-title">決済方法の選択</h2>
+                <div class="payment-options">
+                    <button class="payment-option points-option" id="pointsPayment">
+                        <span class="option-icon">🏆</span>
+                        <div class="option-info">
+                            <h3>ポイント決済</h3>
+                            <p>現在の保有ポイント: <span id="currentPoints">0</span></p>
+                        </div>
+                    </button>
+                    <button class="payment-option credit-option" id="creditPayment">
+                        <span class="option-icon">💳</span>
+                        <div class="option-info">
+                            <h3>クレジットカード決済</h3>
+                            <p>安全な決済で即時購入</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- クレジットカード決済フォーム -->
+        <div id="creditCardModal" class="modal">
+            <div class="modal-content credit-card-modal">
+                <span class="close-btn">&times;</span>
+                <h2 class="payment-title">クレジットカード情報入力</h2>
+                <form id="creditCardForm" class="credit-card-form">
+                    <div class="form-group">
+                        <label for="cardNumber">カード番号</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryDate">有効期限</label>
+                            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardName">カード名義人</label>
+                        <input type="text" id="cardName" placeholder="TARO YAMADA" required>
+                    </div>
+                    <button type="submit" class="payment-submit">決済を完了する</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 決済完了モーダル -->
+        <div id="completionModal" class="modal">
+            <div class="modal-content completion-modal">
+                <div class="completion-content">
+                    <div class="completion-icon">✅</div>
+                    <h2>購入が完了しました！</h2>
+                    <p>NFTがマイページに追加されました。</p>
+                    <div class="completion-buttons">
+                        <button class="completion-btn primary" onclick="window.location.href='/src/pages/mypage.html'">
+                            マイページへ
+                        </button>
+                        <button class="completion-btn secondary" onclick="closeAllModals()">
+                            買い物を続ける
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボトムナビゲーション -->
+        <nav class="bottom-nav">
+            <a href="/" class="nav-item">
+                <i class="nav-icon">🏠</i>
+                <span>ホーム</span>
+            </a>
+            <a href="/src/pages/market.html" class="nav-item">
+                <i class="nav-icon">🛍️</i>
+                <span>マーケット</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="nav-icon">🔧</i>
+                <span>ツール</span>
+            </a>
+            <a href="/src/pages/mypage.html" class="nav-item">
+                <i class="nav-icon">👤</i>
+                <span>マイページ</span>
+            </a>
+        </nav>
+    </div>
+    <script type="module">
+        import { checkAuth } from "/assets/auth/auth-check.js';
+        import { setupNavigation, updateNavigation } from "/assets/utils/navigation.js';
+        import { initializeStorage } from '../services/local-storage.js';
+
+        async function init() {
+            const user = await checkAuth();
+            if (!user) {
+                window.location.href = '/src/pages/auth.html';
+                return;
+            }
+            
+            initializeStorage();
+            setupNavigation();
+            updateNavigation();
+        }
+
+        init();
+    </script>
+    <script type="module" src="/assets/product-detail.js"></script>
+</body>
+</html>

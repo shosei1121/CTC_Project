@@ -96,5 +96,29 @@
         init();
     </script>
     <script type="module" src="../js/market.js"></script>
+    <script>
+        // CSSロード確認
+        document.addEventListener('DOMContentLoaded', function() {
+            // スタイルシートがロードされているか確認
+            const hasStyles = Array.from(document.styleSheets).some(
+                sheet => sheet.href && (sheet.href.includes('market.css') || sheet.href.includes('styles.css'))
+            );
+            
+            // スタイルシートがロードされていない場合は強制的に追加
+            if (!hasStyles) {
+                const mainStyle = document.createElement('link');
+                mainStyle.rel = 'stylesheet';
+                mainStyle.href = isProduction ? '/assets/styles.css' : '../styles/styles.css';
+                document.head.appendChild(mainStyle);
+                
+                const pageStyle = document.createElement('link');
+                pageStyle.rel = 'stylesheet';
+                pageStyle.href = isProduction ? '/assets/market.css' : '../styles/market.css';
+                document.head.appendChild(pageStyle);
+                
+                console.log('Added missing style sheets');
+            }
+        });
+    </script>
 </body>
 </html>
