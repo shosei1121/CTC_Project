@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTCアプリケーション</title>
-    <!-- 両環境で動作するようにパスを統一 -->
-
-  <script type="module" crossorigin src="/assets/index-BYsCooDX.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/local-storage-BFjGCbUB.js">
-  <link rel="modulepreload" crossorigin href="/assets/navigation-CvC7EUiU.js">
-  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
+    <!-- 両環境で動作するようにパスを統一 -->
+  <script type="module" crossorigin src="/assets/index-DIdR6k3n.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DlfzOBBh.css">
 </head>
 <body>
     <div id="app">
@@ -53,13 +50,13 @@
             </div>
         </main>
 
-        <!-- ボトムナビゲーション（常に.htmlをつける） -->
+        <!-- ボトムナビゲーション（すべて絶対パスに統一） -->
         <nav class="bottom-nav">
             <a href="/" class="nav-item active">
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="market.html" class="nav-item">
+            <a href="/market.html" class="nav-item">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -67,13 +64,11 @@
                 <i class="nav-icon">🔧</i>
                 <span>ツール</span>
             </a>
-            <a href="mypage.html" class="nav-item">
+            <a href="/mypage.html" class="nav-item">
                 <i class="nav-icon">👤</i>
                 <span>マイページ</span>
             </a>
         </nav>
-    </div>
-
-
+    </div>
 </body>
 </html>

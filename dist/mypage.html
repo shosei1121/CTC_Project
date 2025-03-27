@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マイページ - CTCアプリケーション</title>
-  <script type="module" crossorigin src="/assets/mypage-C8V2B5mP.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/local-storage-BFjGCbUB.js">
-  <link rel="modulepreload" crossorigin href="/assets/navigation-CvC7EUiU.js">
-  <link rel="modulepreload" crossorigin href="/assets/web3-auth-BjYWAgWj.js">
-  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
-  <link rel="stylesheet" crossorigin href="/assets/mypage-B8JCtvwD.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/mypage.css">
 </head>
 <body>
     <div id="app">
@@ -130,5 +126,25 @@
             </a>
         </nav>
     </div>
+    <script type="module">
+        import { checkAuth } from '../js/auth/auth-check.js';
+        import { setupNavigation, updateNavigation } from '../js/utils/navigation.js';
+        import { initializeStorage } from '../services/local-storage.js';
+
+        async function init() {
+            const user = await checkAuth();
+            if (!user) {
+                window.location.href = '/src/pages/auth.html';
+                return;
+            }
+            
+            initializeStorage();
+            setupNavigation();
+            updateNavigation();
+        }
+
+        init();
+    </script>
+    <script type="module" src="../js/mypage.js"></script>
 </body>
 </html>
