@@ -122,6 +122,50 @@ function copyHtmlPlugin() {
   };
 }
 
+// フォルダ構造を維持してコピーする関数
+function preserveFolderStructurePlugin() {
+  return {
+    name: 'preserve-folder-structure',
+    closeBundle() {
+      // src/stylesを丸ごとdist/stylesにコピー
+      copyFolderRecursive('src/styles', 'dist/styles');
+      
+      // src/pagesを丸ごとdist/pagesにコピー
+      copyFolderRecursive('src/pages', 'dist/pages');
+      
+      // src/jsを丸ごとdist/jsにコピー
+      copyFolderRecursive('src/js', 'dist/js');
+    }
+  };
+}
+
+// フォルダをコピーするヘルパー関数
+function copyFolderRecursive(source, target) {
+  const sourceDir = resolve(__dirname, source);
+  const targetDir = resolve(__dirname, target);
+  
+  // ターゲットディレクトリが存在しない場合は作成
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  
+  // ソースディレクトリのファイルをすべて読み込む
+  const files = fs.readdirSync(sourceDir);
+  
+  files.forEach(file => {
+    const sourcePath = path.join(sourceDir, file);
+    const targetPath = path.join(targetDir, file);
+    
+    if (fs.statSync(sourcePath).isDirectory()) {
+      // ディレクトリの場合は再帰的にコピー
+      copyFolderRecursive(sourcePath, targetPath);
+    } else {
+      // ファイルの場合はそのままコピー
+      fs.copyFileSync(sourcePath, targetPath);
+    }
+  });
+}
+
 export default defineConfig({
   base: '/',  // 絶対パスを使用
   build: {
@@ -136,7 +180,7 @@ export default defineConfig({
     },
     cssCodeSplit: true
   },
-  plugins: [copyHtmlPlugin()],
+  plugins: [copyHtmlPlugin(), preserveFolderStructurePlugin()],
   server: {
     port: 8080,
     open: true,
