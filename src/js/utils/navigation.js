@@ -29,18 +29,28 @@ export function setupNavigation() {
     
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        if (href === '/') return; // ホームはスキップ
+        if (href === '/') {
+            // ホームページへのリンク
+            if (!isProduction) {
+                link.setAttribute('href', '/index.html');
+            }
+            return;
+        }
         
         if (!isProduction) {
             // 開発環境: すべてのリンクを/src/pages/xxx.htmlに変換
             let pageName = href.startsWith('/') ? href.substring(1) : href;
-            // 既に.htmlが含まれている場合は削除
-            pageName = pageName.replace('.html', '');
+            // 既に.htmlが含まれている場合は処理
+            if (pageName.includes('.html')) {
+                pageName = pageName.replace('.html', '');
+            }
             link.setAttribute('href', `/src/pages/${pageName}.html`);
         } else {
             // 本番環境: すべてのリンクを/xxx形式に統一（.html除去）
             let pageName = href.startsWith('/') ? href.substring(1) : href;
-            pageName = pageName.replace('.html', '');
+            if (pageName.includes('.html')) {
+                pageName = pageName.replace('.html', '');
+            }
             link.setAttribute('href', `/${pageName}`);
         }
     });

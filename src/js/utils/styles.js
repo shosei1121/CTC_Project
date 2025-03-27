@@ -2,26 +2,56 @@ export function setupStyles() {
     const isProduction = !window.location.hostname.includes('localhost') && 
                          !window.location.hostname.includes('127.0.0.1');
     
-    // すべてのCSSリンク要素を取得
-    const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
-    
-    cssLinks.forEach(link => {
+    // スタイルシートのパスを修正
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
         const href = link.getAttribute('href');
         
         if (isProduction) {
-            // 本番環境: ../styles/xxx.css → /assets/xxx.css に変換
-            if (href.includes('../styles/')) {
-                const newHref = href.replace('../styles/', '/assets/');
-                link.setAttribute('href', newHref);
-            } else if (href.includes('./src/styles/')) {
-                const newHref = href.replace('./src/styles/', '/assets/');
-                link.setAttribute('href', newHref);
+            // 本番環境: ../styles/xxx.css → /assets/xxx.css
+            if (href && href.includes('../styles/')) {
+                const styleName = href.split('/').pop();
+                link.setAttribute('href', `/assets/${styleName}`);
             }
-        } else {
-            // 開発環境: 相対パスが正しいことを確認
-            // 必要に応じてパスを調整
         }
     });
+    
+    // スクリプトのパスも修正
+    document.querySelectorAll('script[src]').forEach(script => {
+        const src = script.getAttribute('src');
+        
+        if (isProduction && src) {
+            // 本番環境: ../js/xxx.js → /assets/xxx.js
+            if (src.includes('../js/')) {
+                const scriptName = src.split('/').pop();
+                script.setAttribute('src', `/assets/${scriptName}`);
+            }
+        }
+    });
+    
+    // ホームへのリンクを修正
+    const homeLinks = document.querySelectorAll('a[href="/"]');
+    homeLinks.forEach(link => {
+        if (!isProduction) {
+            link.setAttribute('href', '/index.html');
+        }
+    });
+}
+
+// ページロード前の高速パス修正
+export function quickFixPaths() {
+    const isProduction = !window.location.hostname.includes('localhost') && 
+                         !window.location.hostname.includes('127.0.0.1');
+                         
+    if (isProduction) {
+        // 本番環境向けの緊急修正
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.includes('../styles/')) {
+                const styleName = href.split('/').pop();
+                link.setAttribute('href', `/assets/${styleName}`);
+            }
+        });
+    }
 }
 
 export function fixStylePaths() {

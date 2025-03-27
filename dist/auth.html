@@ -6,6 +6,24 @@
     <title>認証 - CTCアプリケーション</title>
     <link rel="stylesheet" href="/assets/styles.css">
     <link rel="stylesheet" href="/assets/auth.css">
+    
+    <!-- 環境に応じたパス修正スクリプト -->
+    <script>
+        // ページ読み込み前にスタイルを修正
+        (function() {
+            const isProduction = !window.location.hostname.includes('localhost') && 
+                               !window.location.hostname.includes('127.0.0.1');
+            
+            // CSSパスの修正
+            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (isProduction && href && href.includes('../styles/')) {
+                    const styleName = href.split('/').pop();
+                    link.setAttribute('href', `/assets/${styleName}`);
+                }
+            });
+        })();
+    </script>
 </head>
 <body>
     <div id="app">
@@ -72,5 +90,12 @@
         </div>
     </div>
     <script type="module" src="/assets/auth/auth.js"></script>
+    <script type="module">
+        import { setupStyles } from "/assets/utils/styles.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupStyles();
+        });
+    </script>
 </body>
 </html>

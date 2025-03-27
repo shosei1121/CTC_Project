@@ -139,7 +139,13 @@ export default defineConfig({
   plugins: [copyHtmlPlugin()],
   server: {
     port: 8080,
-    open: true
+    open: true,
+    proxy: {
+      '/market': '/src/pages/market.html',
+      '/mypage': '/src/pages/mypage.html',
+      '/auth': '/src/pages/auth.html',
+      '/product-detail': '/src/pages/product-detail.html'
+    }
   },
   preview: {
     port: 8080
