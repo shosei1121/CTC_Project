@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
 
-// HTMLファイルをコピーする関数
+// HTMLファイルをコピーしてCSSパスを修正する関数
 function copyHtmlPlugin() {
   return {
     name: 'copy-html-plugin',
@@ -16,10 +16,22 @@ function copyHtmlPlugin() {
         const files = fs.readdirSync(pagesDir);
         files.forEach(file => {
           if (file.endsWith('.html')) {
-            const srcFile = path.join(pagesDir, file);
-            const destFile = path.join(distDir, file);
-            fs.copyFileSync(srcFile, destFile);
-            console.log(`Copied ${srcFile} to ${destFile}`);
+            let content = fs.readFileSync(path.join(pagesDir, file), 'utf8');
+            
+            // CSSパスを修正
+            content = content.replace(/href="\.\.\/styles\//g, 'href="/assets/');
+            content = content.replace(/href="\/src\/styles\//g, 'href="/assets/');
+            
+            // JSパスを修正
+            content = content.replace(/src="\.\.\/js\//g, 'src="/assets/');
+            content = content.replace(/src="\/src\/js\//g, 'src="/assets/');
+            
+            // インポートパスを修正
+            content = content.replace(/from '\.\.\/js\//g, 'from "/assets/');
+            content = content.replace(/from '\/src\/js\//g, 'from "/assets/');
+            
+            fs.writeFileSync(path.join(distDir, file), content);
+            console.log(`Copied and modified ${file} to dist directory`);
           }
         });
       }
