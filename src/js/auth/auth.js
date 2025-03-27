@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showMessage('ログインに成功しました！', 'success');
             setTimeout(() => {
-                window.location.href = '/';
+                handleFormSubmit(e);
             }, 1500);
         } catch (error) {
             console.error('Login error:', error);
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showMessage('アカウントを作成しました！', 'success');
             setTimeout(() => {
-                window.location.href = '/';
+                handleFormSubmit(e);
             }, 1500);
         } catch (error) {
             console.error('Signup error:', error);
@@ -116,5 +116,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMessage(message, type) {
         authMessage.textContent = message;
         authMessage.className = `auth-message ${type}`;
+    }
+
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        // ... 認証処理 ...
+        
+        // 認証成功時のリダイレクト
+        const isProduction = !window.location.hostname.includes('localhost') && 
+                             !window.location.hostname.includes('127.0.0.1');
+        
+        if (isProduction) {
+            window.location.href = '/'; // 本番環境
+        } else {
+            window.location.href = '/index.html'; // 開発環境
+        }
     }
 });

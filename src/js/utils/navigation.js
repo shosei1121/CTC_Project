@@ -20,7 +20,7 @@ export function updateNavigation() {
 
 // ナビゲーションのクリックイベント
 export function setupNavigation() {
-    // 実行環境を検出（開発環境か本番環境か）
+    // 環境を検出
     const isProduction = !window.location.hostname.includes('localhost') && 
                          !window.location.hostname.includes('127.0.0.1');
     
@@ -29,15 +29,19 @@ export function setupNavigation() {
     
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
+        if (href === '/') return; // ホームはスキップ
         
-        // 開発環境の場合のみパスを変換
-        if (!isProduction && href !== '/') {
-            if (href.startsWith('/')) {
-                const page = href.substring(1); // 先頭の/を削除
-                // /market → /src/pages/market.html のように変換
-                link.setAttribute('href', `/src/pages/${page}.html`);
-            }
+        if (!isProduction) {
+            // 開発環境: すべてのリンクを/src/pages/xxx.htmlに変換
+            let pageName = href.startsWith('/') ? href.substring(1) : href;
+            // 既に.htmlが含まれている場合は削除
+            pageName = pageName.replace('.html', '');
+            link.setAttribute('href', `/src/pages/${pageName}.html`);
+        } else {
+            // 本番環境: すべてのリンクを/xxx形式に統一（.html除去）
+            let pageName = href.startsWith('/') ? href.substring(1) : href;
+            pageName = pageName.replace('.html', '');
+            link.setAttribute('href', `/${pageName}`);
         }
-        // 本番環境（Amplify）では何もしない - 既存のパスのままにする
     });
 }

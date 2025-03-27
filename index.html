@@ -79,13 +79,18 @@
                 const user = await checkAuth();
                 const authButton = document.getElementById('authButton');
                 
+                // 環境に応じたパス設定
+                const isProduction = !window.location.hostname.includes('localhost') && 
+                                    !window.location.hostname.includes('127.0.0.1');
+                const authPath = isProduction ? '/auth' : './src/pages/auth.html';
+                
                 if (user) {
                     authButton.textContent = 'ログアウト';
                     authButton.addEventListener('click', handleSignOut);
                 } else {
                     authButton.textContent = 'ログイン';
                     authButton.addEventListener('click', () => {
-                        window.location.href = './src/pages/auth.html';
+                        window.location.href = authPath;
                     });
                 }
 
