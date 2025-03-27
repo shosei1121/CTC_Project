@@ -6,16 +6,180 @@
     <title>マーケット - CTCアプリケーション</title>
     <link rel="stylesheet" href="../styles/styles.css">
     <link rel="stylesheet" href="../styles/market.css">
+    
+    <!-- インラインスタイル -->
+    <style>
+        /* 共通スタイル */
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5; color: #333;}
+        #app {min-height: 100vh; display: flex; flex-direction: column;}
+        .home-container, .market-container, .mypage-container {padding: 16px 16px 70px; flex: 1; max-width: 800px; margin: 0 auto;}
+        .bottom-nav {position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;}
+        .nav-item {display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #666; font-size: 11px; padding: 4px;}
+        .nav-item.active {color: #4a90e2;}
+        .nav-icon {font-size: 18px; margin-bottom: 2px;}
+        
+        /* マーケット固有のスタイル */
+        .market-container {padding: 16px; padding-bottom: 70px; max-width: 1200px; margin: 0 auto;}
+        .search-bar {display: flex; gap: 8px; margin-bottom: 16px;}
+        .search-bar input {flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;}
+        .search-btn {padding: 0 16px; background: #4a90e2; border: none; border-radius: 8px; color: white; font-size: 18px; cursor: pointer;}
+        .featured-channels {margin-bottom: 24px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .section-title {font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #333;}
+        .product-grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;}
+        .product-card {position: relative; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;}
+        .product-image {width: 100%; height: 200px; object-fit: cover;}
+        .product-info {padding: 16px;}
+        .product-name {font-size: 16px; font-weight: bold; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #333;}
+        .product-price {font-size: 18px; font-weight: bold; color: #4a90e2;}
+    </style>
+    
+    <!-- local-storage.js のコア機能を直接埋め込み -->
+    <script>
+        // グローバルストアの初期化
+        let storage = {
+            user: null,
+            profile: null,
+            products: [],
+            channels: [],
+            transactions: [],
+            nfts: []
+        };
+
+        // ストレージ初期化
+        function initializeStorage() {
+            if (typeof localStorage !== 'undefined') {
+                if (!localStorage.getItem('ctc_storage')) {
+                    localStorage.setItem('ctc_storage', JSON.stringify(storage));
+                } else {
+                    // サンプル商品がなければ追加
+                    const data = JSON.parse(localStorage.getItem('ctc_storage'));
+                    if (!data.products || data.products.length === 0) {
+                        data.products = getSampleProducts();
+                        localStorage.setItem('ctc_storage', JSON.stringify(data));
+                    }
+                    if (!data.channels || data.channels.length === 0) {
+                        data.channels = getSampleChannels();
+                        localStorage.setItem('ctc_storage', JSON.stringify(data));
+                    }
+                }
+            }
+        }
+
+        // ストレージから取得
+        async function getFromStorage(key) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                return data[key] || null;
+            }
+            return null;
+        }
+
+        // ストレージに保存
+        async function saveToStorage(key, value) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                data[key] = value;
+                localStorage.setItem('ctc_storage', JSON.stringify(data));
+            }
+        }
+        
+        // ユーザー取得
+        async function getUser() {
+            const user = await getFromStorage('user');
+            return { user };
+        }
+        
+        // 商品を取得
+        async function fetchProducts() {
+            const products = await getFromStorage('products') || [];
+            return { products };
+        }
+        
+        // チャンネルを取得
+        async function fetchChannels() {
+            const channels = await getFromStorage('channels') || [];
+            return { channels };
+        }
+        
+        // サンプル商品を生成
+        function getSampleProducts() {
+            return [
+                { 
+                    id: '1', 
+                    name: '有機トマト（1kg）', 
+                    price: 980, 
+                    image: 'https://via.placeholder.com/300x200?text=Tomato',
+                    channel_id: '1',
+                    location: '長野県'
+                },
+                { 
+                    id: '2', 
+                    name: '無農薬レタス（2個）', 
+                    price: 420, 
+                    image: 'https://via.placeholder.com/300x200?text=Lettuce',
+                    channel_id: '2',
+                    location: '千葉県'
+                },
+                { 
+                    id: '3', 
+                    name: '採れたて枝豆（500g）', 
+                    price: 550, 
+                    image: 'https://via.placeholder.com/300x200?text=Edamame',
+                    channel_id: '1',
+                    location: '埼玉県'
+                },
+                { 
+                    id: '4', 
+                    name: '旬のいちご（パック）', 
+                    price: 1200, 
+                    image: 'https://via.placeholder.com/300x200?text=Strawberry',
+                    channel_id: '3',
+                    location: '栃木県'
+                }
+            ];
+        }
+        
+        // サンプルチャンネルを生成
+        function getSampleChannels() {
+            return [
+                {
+                    id: '1',
+                    name: '長野山田農園',
+                    image: 'https://via.placeholder.com/60?text=Farm1',
+                    location: '長野県',
+                    likes: 120,
+                    isLive: true
+                },
+                {
+                    id: '2',
+                    name: '千葉グリーンファーム',
+                    image: 'https://via.placeholder.com/60?text=Farm2',
+                    location: '千葉県',
+                    likes: 89,
+                    isLive: false
+                },
+                {
+                    id: '3',
+                    name: '栃木いちご園',
+                    image: 'https://via.placeholder.com/60?text=Farm3',
+                    location: '栃木県',
+                    likes: 156,
+                    isLive: true
+                }
+            ];
+        }
+    </script>
 </head>
 <body>
     <div id="app">
         <main class="market-container">
-            <!-- チャンネルが選択されていない場合のみ表示 -->
+            <!-- マーケットが選択されていない場合のみ表示 -->
             <div id="marketHome">
                 <!-- おすすめチャンネルセクション -->
                 <section class="featured-channels">
                     <h2 class="section-title">おすすめ生産者</h2>
-                    <div class="channel-list">
+                    <div class="channel-list" id="channelList">
                         <!-- チャンネルはJavaScriptで動的に追加 -->
                     </div>
                 </section>
@@ -28,7 +192,7 @@
                     <button class="filter-btn" data-sort="rating">評価順</button>
                     <button class="filter-btn" data-sort="price">価格順</button>
                 </div>
-                <select class="region-select">
+                <select class="region-select" id="regionSelect">
                     <option value="">全ての地域</option>
                     <option value="hokkaido">北海道</option>
                     <option value="tohoku">東北</option>
@@ -44,15 +208,6 @@
             <!-- 商品グリッド -->
             <section class="product-grid" id="productGrid">
                 <!-- 商品はJavaScriptで動的に追加 -->
-                <!-- 商品テンプレート例 -->
-                <div class="product-card">
-                    <div class="product-actions">
-                        <button class="like-button" data-product-id="${product.id}">
-                            <span class="like-icon">♡</span>
-                            <span class="like-count">0</span>
-                        </button>
-                    </div>
-                </div>
             </section>
         </main>
 
@@ -62,7 +217,7 @@
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="/src/pages/market.html" class="nav-item active">
+            <a href="/market" class="nav-item active">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -70,53 +225,109 @@
                 <i class="nav-icon">🔧</i>
                 <span>ツール</span>
             </a>
-            <a href="/src/pages/mypage.html" class="nav-item">
+            <a href="/mypage" class="nav-item">
                 <i class="nav-icon">👤</i>
                 <span>マイページ</span>
             </a>
         </nav>
     </div>
-    <script type="module">
-        import { checkAuth } from '../js/auth/auth-check.js';
-        import { setupNavigation, updateNavigation } from '../js/utils/navigation.js';
-        import { initializeStorage } from '../services/local-storage.js';
-
-        async function init() {
-            const user = await checkAuth();
-            if (!user) {
-                window.location.href = '/src/pages/auth.html';
-                return;
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 環境判定
+            const isProduction = !window.location.hostname.includes('localhost') && 
+                                !window.location.hostname.includes('127.0.0.1');
+            
+            // ナビゲーションリンクの修正
+            document.querySelectorAll('.nav-item').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === '/') return;
+                
+                if (!isProduction) {
+                    // 開発環境ではsrc/pages以下を参照
+                    let pageName = href.startsWith('/') ? href.substring(1) : href;
+                    pageName = pageName.replace('.html', '');
+                    link.setAttribute('href', `/src/pages/${pageName}.html`);
+                } else {
+                    // 本番環境ではルートを参照
+                    let pageName = href.startsWith('/') ? href.substring(1) : href;
+                    pageName = pageName.replace('.html', '');
+                    link.setAttribute('href', `/${pageName}`);
+                }
+            });
+            
+            // ストレージの初期化
+            initializeStorage();
+            
+            try {
+                // 商品データを読み込む
+                const { products } = await fetchProducts();
+                renderProducts(products);
+                
+                // チャンネルデータを読み込む
+                const { channels } = await fetchChannels();
+                renderChannels(channels);
+                
+                // フィルターボタンのイベント
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const sortBy = this.getAttribute('data-sort');
+                        const region = document.getElementById('regionSelect').value;
+                        filterProducts({ sortBy, region });
+                    });
+                });
+                
+                // 地域選択のイベント
+                document.getElementById('regionSelect').addEventListener('change', function() {
+                    const sortBy = document.querySelector('.filter-btn.active').getAttribute('data-sort');
+                    const region = this.value;
+                    filterProducts({ sortBy, region });
+                });
+            } catch (error) {
+                console.error('Error loading market data:', error);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'データの読み込み中にエラーが発生しました。';
+                document.querySelector('.market-container').prepend(errorMsg);
             }
             
-            initializeStorage();
-            setupNavigation();
-            updateNavigation();
-        }
-
-        init();
-    </script>
-    <script type="module" src="../js/market.js"></script>
-    <script>
-        // CSSロード確認
-        document.addEventListener('DOMContentLoaded', function() {
-            // スタイルシートがロードされているか確認
-            const hasStyles = Array.from(document.styleSheets).some(
-                sheet => sheet.href && (sheet.href.includes('market.css') || sheet.href.includes('styles.css'))
-            );
-            
-            // スタイルシートがロードされていない場合は強制的に追加
-            if (!hasStyles) {
-                const mainStyle = document.createElement('link');
-                mainStyle.rel = 'stylesheet';
-                mainStyle.href = isProduction ? '/assets/styles.css' : '../styles/styles.css';
-                document.head.appendChild(mainStyle);
+            // 商品表示関数
+            function renderProducts(products) {
+                const grid = document.getElementById('productGrid');
+                grid.innerHTML = '';
                 
-                const pageStyle = document.createElement('link');
-                pageStyle.rel = 'stylesheet';
-                pageStyle.href = isProduction ? '/assets/market.css' : '../styles/market.css';
-                document.head.appendChild(pageStyle);
+                if (!products || products.length === 0) {
+                    const noData = document.createElement('div');
+                    noData.className = 'no-data';
+                    noData.textContent = '商品が見つかりませんでした。';
+                    grid.appendChild(noData);
+                    return;
+                }
                 
-                console.log('Added missing style sheets');
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <div class="product-info">
+                            <p class="product-location">${product.location || '地域不明'}</p>
+                            <h3 class="product-name">${product.name}</h3>
+                            <p class="product-price">${product.price}円</p>
+                        </div>
+                    `;
+                    
+                    // 商品詳細ページへのリンク
+                    card.addEventListener('click', () => {
+                        // 環境に応じたURL
+                        const url = isProduction 
+                            ? `/product-detail?id=${product.id}` 
+                            : `/src/pages/product-detail.html?id=${product.id}`;
+                        window.location.href = url;
+                    });
+                });
             }
         });
     </script>

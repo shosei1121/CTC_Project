@@ -4,8 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マイページ - CTCアプリケーション</title>
+    
+    <!-- インラインスタイル -->
+    <style>
+        /* 共通スタイル */
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5; color: #333;}
+        #app {min-height: 100vh; display: flex; flex-direction: column;}
+        .home-container, .market-container, .mypage-container {padding: 16px 16px 70px; flex: 1; max-width: 800px; margin: 0 auto;}
+        .bottom-nav {position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;}
+        .nav-item {display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #666; font-size: 11px; padding: 4px;}
+        .nav-item.active {color: #4a90e2;}
+        .nav-icon {font-size: 18px; margin-bottom: 2px;}
+        
+        /* マイページ固有のスタイル */
+        .profile-section {background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .profile-header {display: flex; gap: 24px; align-items: center;}
+        .profile-avatar {position: relative; width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: #f0f0f0;}
+        .profile-avatar img {width: 100%; height: 100%; object-fit: cover; border-radius: 50%;}
+        .profile-info {flex: 1;}
+        .profile-name {font-size: 24px; font-weight: bold; margin-bottom: 4px; color: #333;}
+        .profile-email {color: #666; font-size: 14px; margin-bottom: 12px;}
+        .nft-section, .followed-channels-section, .history-section {background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .section-title {font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #333;}
+    </style>
+    
+    <!-- 外部CSSリンク -->
     <link rel="stylesheet" href="../styles/styles.css">
     <link rel="stylesheet" href="../styles/mypage.css">
+    
+    <!-- local-storage.jsを直接ローカライズ -->
+    <script>
+        // グローバルストアの初期化
+        let storage = {
+            user: null,
+            profile: null,
+            products: [],
+            channels: [],
+            transactions: [],
+            nfts: []
+        };
+
+        // ストレージ初期化
+        function initializeStorage() {
+            if (typeof localStorage !== 'undefined') {
+                if (!localStorage.getItem('ctc_storage')) {
+                    localStorage.setItem('ctc_storage', JSON.stringify(storage));
+                }
+            }
+        }
+
+        // ストレージから取得
+        async function getFromStorage(key) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                return data[key] || null;
+            }
+            return null;
+        }
+
+        // ストレージに保存
+        async function saveToStorage(key, value) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                data[key] = value;
+                localStorage.setItem('ctc_storage', JSON.stringify(data));
+            }
+        }
+        
+        // ユーザー取得
+        async function getUser() {
+            const user = await getFromStorage('user');
+            return { user };
+        }
+        
+        // ユーザープロファイル取得
+        async function getUserProfile() {
+            const profile = await getFromStorage('profile');
+            return { profile };
+        }
+        
+        // ユーザーNFT取得
+        async function getUserNFTs() {
+            const nfts = await getFromStorage('nfts');
+            return { nfts: nfts || [] };
+        }
+        
+        // 取引履歴取得
+        async function getTransactions() {
+            const transactions = await getFromStorage('transactions');
+            return { transactions: transactions || [] };
+        }
+        
+        // ページ読み込み時にストレージを初期化
+        document.addEventListener('DOMContentLoaded', initializeStorage);
+    </script>
 </head>
 <body>
     <div id="app">
@@ -14,97 +107,56 @@
             <section class="profile-section">
                 <div class="profile-header">
                     <div class="profile-avatar">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="プロフィール" id="profileAvatar" class="clickable">
+                        <img id="userAvatar" src="https://via.placeholder.com/100" alt="プロフィール画像">
                     </div>
                     <div class="profile-info">
                         <div class="profile-name-container">
-                            <h1 class="profile-name" id="profileName">ユーザー名</h1>
-                            <button class="edit-name-btn" id="editNameBtn">✏️</button>
+                            <h2 id="userName" class="profile-name">ユーザー名</h2>
+                            <button class="edit-name-btn" id="editNameBtn">編集</button>
                         </div>
-                        <p class="profile-email" id="profileEmail">email@example.com</p>
+                        <p id="userEmail" class="profile-email">user@example.com</p>
                         <div class="profile-points">
                             <span class="points-icon">🏆</span>
-                            <span class="points-value" id="userPoints">0</span>
+                            <span id="userPoints" class="points-value">0</span>
                             <span class="points-label">ポイント</span>
-                        </div>
-                        <div class="profile-actions">
-                            <button class="connect-metamask-btn" id="connectMetamaskBtn">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="metamask-icon">
-                                MetaMaskと連携
-                            </button>
                         </div>
                     </div>
                 </div>
+                <div class="profile-actions">
+                    <button id="connectWalletBtn" class="connect-metamask-btn">
+                        <span class="metamask-icon">🦊</span>
+                        MetaMask接続
+                    </button>
+                </div>
             </section>
-
-            <!-- NFTコレクションセクション -->
+            
+            <!-- NFTセクション -->
             <section class="nft-section">
                 <h2 class="section-title">所有NFT</h2>
-                <div class="nft-grid" id="nftGrid">
+                <div id="nftGrid" class="nft-grid">
                     <!-- NFTはJavaScriptで動的に追加 -->
+                    <div class="no-data">所有しているNFTはありません</div>
                 </div>
             </section>
-
-            <!-- いいねしたNFTセクション -->
-            <section class="nft-section">
-                <h2 class="section-title">いいねしたNFT</h2>
-                <div class="nft-grid" id="likedNftGrid">
-                    <!-- いいねしたNFTはJavaScriptで動的に追加 -->
-                </div>
-            </section>
-
-            <!-- フォロー中の生産者セクション -->
+            
+            <!-- フォロー中のチャンネル -->
             <section class="followed-channels-section">
                 <h2 class="section-title">フォロー中の生産者</h2>
-                <div class="followed-channels" id="followedChannels">
-                    <!-- フォロー中の生産者はJavaScriptで動的に追加 -->
+                <div id="followedChannels" class="followed-channels">
+                    <!-- チャンネルはJavaScriptで動的に追加 -->
+                    <div class="no-data">フォロー中の生産者はいません</div>
                 </div>
             </section>
-
-            <!-- 取引履歴セクション -->
+            
+            <!-- 取引履歴 -->
             <section class="history-section">
                 <h2 class="section-title">取引履歴</h2>
-                <div class="history-list" id="historyList">
-                    <!-- 取引履歴はJavaScriptで動的に追加 -->
+                <div id="historyList" class="history-list">
+                    <!-- 履歴はJavaScriptで動的に追加 -->
+                    <div class="no-data">取引履歴はありません</div>
                 </div>
             </section>
         </main>
-
-        <!-- プロフィール編集モーダル -->
-        <div id="editProfileModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <h2>プロフィール編集</h2>
-                <form id="editProfileForm">
-                    <div class="form-group">
-                        <label for="editUsername">ユーザー名</label>
-                        <input type="text" id="editUsername" required>
-                    </div>
-                    <button type="submit" class="submit-btn">更新</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- アバター編集モーダル -->
-        <div id="editAvatarModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <h2>プロフィール画像の変更</h2>
-                <div class="avatar-upload">
-                    <div class="avatar-preview">
-                        <img id="avatarPreview" alt="プレビュー">
-                    </div>
-                    <div class="form-group">
-                        <label for="avatarInput" class="file-input-label">
-                            画像を選択
-                            <input type="file" id="avatarInput" accept="image/*" class="file-input">
-                        </label>
-                        <p class="file-help">5MB以下の画像ファイルを選択してください</p>
-                    </div>
-                    <button id="saveAvatarBtn" class="submit-btn" disabled>保存</button>
-                </div>
-            </div>
-        </div>
 
         <!-- ボトムナビゲーション -->
         <nav class="bottom-nav">
@@ -112,7 +164,7 @@
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="/src/pages/market.html" class="nav-item">
+            <a href="/market" class="nav-item">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -120,31 +172,125 @@
                 <i class="nav-icon">🔧</i>
                 <span>ツール</span>
             </a>
-            <a href="/src/pages/mypage.html" class="nav-item active">
+            <a href="/mypage" class="nav-item active">
                 <i class="nav-icon">👤</i>
                 <span>マイページ</span>
             </a>
         </nav>
     </div>
-    <script type="module">
-        import { checkAuth } from '../js/auth/auth-check.js';
-        import { setupNavigation, updateNavigation } from '../js/utils/navigation.js';
-        import { initializeStorage } from '../services/local-storage.js';
 
-        async function init() {
-            const user = await checkAuth();
-            if (!user) {
-                window.location.href = '/src/pages/auth.html';
-                return;
+    <!-- マイページのロジック -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 環境判定
+            const isProduction = !window.location.hostname.includes('localhost') && 
+                                !window.location.hostname.includes('127.0.0.1');
+            
+            // ナビゲーションリンクの修正
+            document.querySelectorAll('.nav-item').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === '/') return;
+                
+                if (!isProduction) {
+                    // 開発環境ではsrc/pages以下を参照
+                    let pageName = href.startsWith('/') ? href.substring(1) : href;
+                    pageName = pageName.replace('.html', '');
+                    link.setAttribute('href', `/src/pages/${pageName}.html`);
+                } else {
+                    // 本番環境ではルートを参照
+                    let pageName = href.startsWith('/') ? href.substring(1) : href;
+                    pageName = pageName.replace('.html', '');
+                    link.setAttribute('href', `/${pageName}`);
+                }
+            });
+            
+            try {
+                // ユーザープロファイルを読み込む
+                const { profile } = await getUserProfile() || { profile: null };
+                if (profile) {
+                    document.getElementById('userName').textContent = profile.username || 'ユーザー名';
+                    document.getElementById('userEmail').textContent = profile.email || 'user@example.com';
+                    document.getElementById('userPoints').textContent = profile.points || '0';
+                    
+                    if (profile.avatar) {
+                        document.getElementById('userAvatar').src = profile.avatar;
+                    }
+                }
+                
+                // NFTを読み込む
+                const { nfts } = await getUserNFTs();
+                const nftGrid = document.getElementById('nftGrid');
+                
+                if (nfts && nfts.length > 0) {
+                    nftGrid.innerHTML = '';
+                    nfts.forEach(nft => {
+                        const nftCard = document.createElement('div');
+                        nftCard.className = 'nft-card';
+                        nftCard.innerHTML = `
+                            <img src="${nft.image}" alt="${nft.name}" class="nft-image">
+                            <div class="nft-info">
+                                <h3 class="nft-name">${nft.name}</h3>
+                                <p class="nft-date">取得日: ${new Date(nft.created_at).toLocaleDateString()}</p>
+                                <p class="nft-price">${nft.price}円</p>
+                            </div>
+                        `;
+                        nftGrid.appendChild(nftCard);
+                    });
+                }
+                
+                // 取引履歴を読み込む
+                const { transactions } = await getTransactions();
+                const historyList = document.getElementById('historyList');
+                
+                if (transactions && transactions.length > 0) {
+                    historyList.innerHTML = '';
+                    transactions.forEach(tx => {
+                        const historyItem = document.createElement('div');
+                        historyItem.className = 'history-item';
+                        historyItem.innerHTML = `
+                            <div class="history-details">
+                                <h3 class="history-title">${tx.title}</h3>
+                                <p class="history-date">${new Date(tx.date).toLocaleDateString()}</p>
+                            </div>
+                            <p class="history-amount">${tx.amount}円</p>
+                        `;
+                        historyList.appendChild(historyItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // エラーメッセージの表示
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'プロファイルの読み込み中にエラーが発生しました。';
+                document.querySelector('.mypage-container').prepend(errorMsg);
             }
             
-            initializeStorage();
-            setupNavigation();
-            updateNavigation();
-        }
-
-        init();
+            // MetaMask接続ボタンの処理
+            document.getElementById('connectWalletBtn').addEventListener('click', async function() {
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        const address = accounts[0];
+                        alert(`MetaMask接続成功: ${address}`);
+                        
+                        // ウォレット接続情報を保存
+                        const { profile } = await getUserProfile() || { profile: {} };
+                        profile.wallet_address = address;
+                        await saveToStorage('profile', profile);
+                        
+                        // ボタンを無効化
+                        this.disabled = true;
+                        this.textContent = '接続済み: ' + address.substring(0, 6) + '...' + address.substring(address.length - 4);
+                    } catch (error) {
+                        console.error('MetaMask接続エラー:', error);
+                        alert('MetaMask接続に失敗しました: ' + error.message);
+                    }
+                } else {
+                    alert('MetaMaskがインストールされていません。');
+                }
+            });
+        });
     </script>
-    <script type="module" src="../js/mypage.js"></script>
 </body>
 </html>
