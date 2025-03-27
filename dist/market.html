@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マーケット - CTCアプリケーション</title>
-    <link rel="stylesheet" href="../styles/styles.css">
-    <link rel="stylesheet" href="../styles/market.css">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/market.css">
 </head>
 <body>
     <div id="app">
@@ -77,8 +77,8 @@
         </nav>
     </div>
     <script type="module">
-        import { checkAuth } from '../js/auth/auth-check.js';
-        import { setupNavigation, updateNavigation } from '../js/utils/navigation.js';
+        import { checkAuth } from "/assets/auth/auth-check.js';
+        import { setupNavigation, updateNavigation } from "/assets/utils/navigation.js';
         import { initializeStorage } from '../services/local-storage.js';
 
         async function init() {
@@ -95,6 +95,6 @@
 
         init();
     </script>
-    <script type="module" src="../js/market.js"></script>
+    <script type="module" src="/assets/market.js"></script>
 </body>
 </html>

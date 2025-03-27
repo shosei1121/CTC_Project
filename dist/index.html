@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTCアプリケーション</title>
-    <!-- 両環境で動作するようにパスを統一 -->
-
-  <script type="module" crossorigin src="/assets/index-DIdR6k3n.js"></script>
+    <!-- 相対パスに変更 -->
+  <script type="module" crossorigin src="/assets/index-BmvoNazn.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-DlfzOBBh.css">
 </head>
 <body>
@@ -51,13 +50,13 @@
             </div>
         </main>
 
-        <!-- ボトムナビゲーション（すべて絶対パスに統一） -->
+        <!-- ボトムナビゲーション（開発環境で動作するように修正） -->
         <nav class="bottom-nav">
             <a href="/" class="nav-item active">
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="market.html" class="nav-item">
+            <a href="/market.html" class="nav-item">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -70,8 +69,6 @@
                 <span>マイページ</span>
             </a>
         </nav>
-    </div>
-
-
+    </div>
 </body>
 </html>

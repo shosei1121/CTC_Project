@@ -15,11 +15,19 @@ function copyHtmlPlugin() {
       if (fs.existsSync(indexPath) && fs.existsSync(distIndexPath)) {
         let content = fs.readFileSync(distIndexPath, 'utf8');
         
-        // 本番環境用にリンクパスを修正
-        content = content.replace(/href="\.\/src\/pages\/market\.html"/g, 'href="./market.html"');
-        content = content.replace(/href="\.\/src\/pages\/mypage\.html"/g, 'href="./mypage.html"');
-        content = content.replace(/href="\.\/src\/pages\/auth\.html"/g, 'href="./auth.html"');
-        content = content.replace(/window\.location\.href = '\.\/src\/pages\/auth\.html'/g, 'window.location.href = \'./auth.html\'');
+        // 本番環境用にリンクパスを修正 (絶対パスに)
+        content = content.replace(/href="\.\/src\/pages\/market\.html"/g, 'href="/market.html"');
+        content = content.replace(/href="\.\/src\/pages\/mypage\.html"/g, 'href="/mypage.html"');
+        content = content.replace(/href="\.\/src\/pages\/auth\.html"/g, 'href="/auth.html"');
+        content = content.replace(/window\.location\.href = '\.\/src\/pages\/auth\.html'/g, 'window.location.href = \'/auth.html\'');
+        
+        // CSSとJSの参照も修正
+        content = content.replace(/href="\.\/src\/styles\//g, 'href="/assets/');
+        content = content.replace(/src="\.\/src\/js\//g, 'src="/assets/');
+        content = content.replace(/from '\.\/src\/js\//g, 'from "/assets/');
+        
+        // ホーム用のパスも修正
+        content = content.replace(/href="\.\/"/g, 'href="/"');
         
         // 変更した内容を書き込み
         fs.writeFileSync(distIndexPath, content);
@@ -37,14 +45,19 @@ function copyHtmlPlugin() {
             const srcFile = path.join(pagesDir, file);
             let content = fs.readFileSync(srcFile, 'utf8');
             
-            // リンクを修正
-            content = content.replace(/href="..\/..\/index.html"/g, 'href="./"');
-            content = content.replace(/href="..\/..\/"/g, 'href="./"');
+            // リンクを修正 (絶対パスに)
+            content = content.replace(/href="..\/..\/index.html"/g, 'href="/"');
+            content = content.replace(/href="..\/..\/"/g, 'href="/"');
             
             // ほかのページへのリンクも修正
-            content = content.replace(/href="\.\.\/market\.html"/g, 'href="./market.html"');
-            content = content.replace(/href="\.\.\/mypage\.html"/g, 'href="./mypage.html"');
-            content = content.replace(/href="\.\.\/auth\.html"/g, 'href="./auth.html"');
+            content = content.replace(/href="\.\.\/market\.html"/g, 'href="/market.html"');
+            content = content.replace(/href="\.\.\/mypage\.html"/g, 'href="/mypage.html"');
+            content = content.replace(/href="\.\.\/auth\.html"/g, 'href="/auth.html"');
+            
+            // CSSとJSの参照も修正
+            content = content.replace(/href="\.\.\/styles\//g, 'href="/assets/');
+            content = content.replace(/src="\.\.\/js\//g, 'src="/assets/');
+            content = content.replace(/from '\.\.\/js\//g, 'from "/assets/');
             
             const destFile = path.join(distDir, file);
             fs.writeFileSync(destFile, content);
@@ -57,7 +70,7 @@ function copyHtmlPlugin() {
 }
 
 export default defineConfig({
-  base: './',  // 相対パスを使用
+  base: '/',  // 絶対パスを使用
   build: {
     outDir: 'dist',
     emptyOutDir: true,
