@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTCアプリケーション</title>
-    <!-- 両環境で動作するようにパスを統一 -->
-    <link rel="stylesheet" href="/src/styles/styles.css">
+    <!-- 相対パスに変更 -->
+    <link rel="stylesheet" href="./src/styles/styles.css">
 </head>
 <body>
     <div id="app">
@@ -49,13 +49,13 @@
             </div>
         </main>
 
-        <!-- ボトムナビゲーション（すべて絶対パスに統一） -->
+        <!-- ボトムナビゲーション（開発環境で動作するように修正） -->
         <nav class="bottom-nav">
-            <a href="/" class="nav-item active">
+            <a href="./" class="nav-item active">
                 <i class="nav-icon">🏠</i>
                 <span>ホーム</span>
             </a>
-            <a href="/market.html" class="nav-item">
+            <a href="./src/pages/market.html" class="nav-item">
                 <i class="nav-icon">🛍️</i>
                 <span>マーケット</span>
             </a>
@@ -63,15 +63,16 @@
                 <i class="nav-icon">🔧</i>
                 <span>ツール</span>
             </a>
-            <a href="/mypage.html" class="nav-item">
+            <a href="./src/pages/mypage.html" class="nav-item">
                 <i class="nav-icon">👤</i>
                 <span>マイページ</span>
             </a>
         </nav>
     </div>
     <script type="module">
-        import { checkAuth, handleSignOut } from '/src/js/auth/auth-check.js';
-        import { setupNavigation, updateNavigation } from '/src/js/utils/navigation.js';
+        // 相対パスに変更
+        import { checkAuth, handleSignOut } from './src/js/auth/auth-check.js';
+        import { setupNavigation, updateNavigation } from './src/js/utils/navigation.js';
 
         async function init() {
             try {
@@ -84,7 +85,7 @@
                 } else {
                     authButton.textContent = 'ログイン';
                     authButton.addEventListener('click', () => {
-                        window.location.href = '/auth.html';
+                        window.location.href = './src/pages/auth.html';
                     });
                 }
 
@@ -97,6 +98,6 @@
 
         init();
     </script>
-    <script type="module" src="/src/js/script.js"></script>
+    <script type="module" src="./src/js/script.js"></script>
 </body>
 </html>
