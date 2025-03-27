@@ -45,7 +45,12 @@ function copyHtmlPlugin() {
             const srcFile = path.join(pagesDir, file);
             let content = fs.readFileSync(srcFile, 'utf8');
             
-            // リンクを修正 (絶対パスに)
+            // *** CSSリンクのパスをより確実に修正 ***
+            // 相対パスをアセットパスに変換
+            content = content.replace(/href="\.\.\/styles\/([^"]+)\.css"/g, 'href="/assets/$1.css"');
+            content = content.replace(/href="\.\.\/styles\//g, 'href="/assets/');
+            
+            // その他のパス修正も確実に
             content = content.replace(/href="..\/..\/index.html"/g, 'href="/"');
             content = content.replace(/href="..\/..\/"/g, 'href="/"');
             
