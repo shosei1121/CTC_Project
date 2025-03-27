@@ -188,6 +188,16 @@ function copyAssetsPlugin() {
   };
 }
 
+function preserveInlineScriptsPlugin() {
+  return {
+    name: 'preserve-inline-scripts',
+    transformIndexHtml(html) {
+      // インラインスクリプトを保持
+      return html;
+    }
+  };
+}
+
 export default defineConfig({
   base: '/',  // 絶対パスを使用
   build: {
@@ -202,7 +212,12 @@ export default defineConfig({
     },
     cssCodeSplit: true
   },
-  plugins: [copyHtmlPlugin(), preserveFolderStructurePlugin(), copyAssetsPlugin()],
+  plugins: [
+    copyHtmlPlugin(), 
+    preserveInlineScriptsPlugin(),
+    preserveFolderStructurePlugin(),
+    copyAssetsPlugin()
+  ],
   server: {
     port: 8080,
     open: true,

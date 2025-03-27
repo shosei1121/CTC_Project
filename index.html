@@ -74,9 +74,55 @@
         import { checkAuth, handleSignOut } from './src/js/auth/auth-check.js';
         import { setupNavigation, updateNavigation } from './src/js/utils/navigation.js';
 
+        // グローバルストアの初期化
+        let storage = {
+            user: null,
+            profile: null,
+            products: [],
+            channels: [],
+            transactions: [],
+            nfts: []
+        };
+
+        // ストレージ初期化
+        function initializeStorage() {
+            if (typeof localStorage !== 'undefined') {
+                if (!localStorage.getItem('ctc_storage')) {
+                    localStorage.setItem('ctc_storage', JSON.stringify(storage));
+                }
+            }
+        }
+
+        // ストレージから取得
+        async function getFromStorage(key) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                return data[key] || null;
+            }
+            return null;
+        }
+        
+        // ストレージに保存
+        async function saveToStorage(key, value) {
+            if (typeof localStorage !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem('ctc_storage') || '{}');
+                data[key] = value;
+                localStorage.setItem('ctc_storage', JSON.stringify(data));
+            }
+        }
+        
+        // サインアウト処理
+        async function signOut() {
+            await saveToStorage('user', null);
+            return { error: null };
+        }
+
         async function init() {
             try {
-                const user = await checkAuth();
+                // ストレージを初期化
+                initializeStorage();
+                
+                const user = await getFromStorage('user');
                 const authButton = document.getElementById('authButton');
                 
                 // 環境に応じたパス設定
@@ -86,7 +132,10 @@
                 
                 if (user) {
                     authButton.textContent = 'ログアウト';
-                    authButton.addEventListener('click', handleSignOut);
+                    authButton.addEventListener('click', async () => {
+                        await signOut();
+                        window.location.reload();
+                    });
                 } else {
                     authButton.textContent = 'ログイン';
                     authButton.addEventListener('click', () => {

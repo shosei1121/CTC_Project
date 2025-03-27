@@ -181,6 +181,34 @@
 
     <!-- マイページのロジック -->
     <script>
+        // 認証チェック関数
+        async function checkAuth() {
+            const user = await getFromStorage('user');
+            return user;
+        }
+        
+        // 初期アクセス時にチェック
+        async function checkAccess() {
+            try {
+                const user = await checkAuth();
+                if (!user) {
+                    const isProduction = !window.location.hostname.includes('localhost') && 
+                                        !window.location.hostname.includes('127.0.0.1');
+                    const authPath = isProduction ? '/auth' : '/src/pages/auth.html';
+                    window.location.href = authPath;
+                }
+            } catch (error) {
+                console.error('認証エラー:', error);
+                const isProduction = !window.location.hostname.includes('localhost') && 
+                                    !window.location.hostname.includes('127.0.0.1');
+                const authPath = isProduction ? '/auth' : '/src/pages/auth.html';
+                window.location.href = authPath;
+            }
+        }
+        
+        // ページ読み込み前に実行
+        checkAccess();
+
         document.addEventListener('DOMContentLoaded', async function() {
             // 環境判定
             const isProduction = !window.location.hostname.includes('localhost') && 
