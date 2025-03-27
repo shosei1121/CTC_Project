@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTCアプリケーション</title>
-  <script type="module" crossorigin src="/assets/index-DIdR6k3n.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DlfzOBBh.css">
+    <title>CTCアプリケーション</title>
+    <!-- 両環境で動作するようにパスを統一 -->
+  <script type="module" crossorigin src="/assets/index-BYsCooDX.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/local-storage-BFjGCbUB.js">
+  <link rel="modulepreload" crossorigin href="/assets/navigation-CvC7EUiU.js">
+  <link rel="stylesheet" crossorigin href="/assets/local-storage-DlfzOBBh.css">
 </head>
 <body>
     <div id="app">
@@ -49,7 +52,7 @@
             </div>
         </main>
 
-        <!-- ボトムナビゲーション -->
+        <!-- ボトムナビゲーション（常に.htmlをつける） -->
         <nav class="bottom-nav">
             <a href="/" class="nav-item active">
                 <i class="nav-icon">🏠</i>
