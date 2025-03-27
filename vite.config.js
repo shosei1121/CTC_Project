@@ -65,6 +65,9 @@ function copyHtmlPlugin() {
           }
         });
       }
+      
+      // CSSファイルのパス調整も確認
+      // HTMLファイル内のCSSリンクも修正されているか確認
     }
   };
 }
@@ -80,7 +83,8 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html')
       }
-    }
+    },
+    cssCodeSplit: true
   },
   plugins: [copyHtmlPlugin()],
   server: {
