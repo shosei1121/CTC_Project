@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProducerStore } from '@/stores/producer'
+import { supabase } from '@/lib/supabase'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,11 +17,18 @@ const error = ref(null)
 onMounted(async () => {
   try {
     loading.value = true
-    const producerData = producersStore.getProducerById(route.params.id)
-    if (!producerData) {
+    // Supabaseから生産者情報を取得
+    const { data, error: err } = await supabase
+      .from('producer_profiles')
+      .select('*')
+      .eq('id', route.params.id)
+      .single()
+
+    if (err) throw err
+    if (!data) {
       throw new Error('プロデューサーが見つかりません')
     }
-    producer.value = producerData
+    producer.value = data
     // フォロー中の生産者を読み込む
     await producerStore.loadFollowedProducers()
   } catch (e) {
@@ -62,7 +70,7 @@ const handleFollow = async () => {
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
         <div class="relative h-64">
           <img
-            :src="producer.avatar"
+            :src="producer.image"
             :alt="producer.name"
             class="w-full h-full object-cover"
           />
@@ -92,54 +100,50 @@ const handleFollow = async () => {
         <div class="p-6">
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">プロフィール</h2>
-            <p class="text-gray-600 dark:text-gray-300">{{ producer.bio }}</p>
+            <p class="text-gray-600 dark:text-gray-300">{{ producer.description }}</p>
           </div>
 
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">統計情報</h2>
             <div class="grid grid-cols-3 gap-4">
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.rating }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.rating || 0 }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">評価</div>
               </div>
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.followers }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.followers || 0 }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">フォロワー</div>
               </div>
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.artworks }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.artworks || 0 }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">作品数</div>
               </div>
             </div>
           </div>
 
           <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">ソーシャルメディア</h2>
-            <div class="flex gap-4">
-              <a
-                v-if="producer.social.twitter"
-                :href="'https://twitter.com/' + producer.social.twitter"
-                target="_blank"
-                class="text-blue-500 hover:text-blue-600"
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">主な生産物</h2>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="specialty in producer.specialties"
+                :key="specialty"
+                class="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-sm"
               >
-                Twitter
-              </a>
-              <a
-                v-if="producer.social.instagram"
-                :href="'https://instagram.com/' + producer.social.instagram"
-                target="_blank"
-                class="text-pink-500 hover:text-pink-600"
+                {{ specialty }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">認証</h2>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="cert in producer.certifications"
+                :key="cert"
+                class="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded-full text-sm"
               >
-                Instagram
-              </a>
-              <a
-                v-if="producer.social.website"
-                :href="producer.social.website"
-                target="_blank"
-                class="text-gray-500 hover:text-gray-600"
-              >
-                ウェブサイト
-              </a>
+                {{ cert }}
+              </span>
             </div>
           </div>
         </div>
