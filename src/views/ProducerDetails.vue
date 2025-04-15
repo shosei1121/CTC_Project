@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProducerStore } from '@/stores/producer'
-import { supabase } from '@/lib/supabase'
+import { producers } from '@/data/producers'
 
 const route = useRoute()
 const router = useRouter()
@@ -23,32 +23,14 @@ onMounted(async () => {
       throw new Error('生産者IDが指定されていません')
     }
 
-    // Supabaseから生産者情報を取得
-    const { data, error: err } = await supabase
-      .from('producer_profiles')
-      .select('*')
-      .eq('id', producerId)
-      .single()
+    // producers.jsから生産者情報を取得
+    const producerData = producers.find(p => p.id === producerId)
 
-    if (err) {
-      console.error('Supabase error:', err)
-      throw new Error('生産者情報の取得に失敗しました')
-    }
-
-    if (!data) {
+    if (!producerData) {
       throw new Error('プロデューサーが見つかりません')
     }
 
-    producer.value = {
-      ...data,
-      image: data.image || '/default-producer.jpg',
-      description: data.description || 'プロフィールはありません',
-      rating: data.rating || 0,
-      followers: data.followers || 0,
-      artworks: data.artworks || 0,
-      specialties: data.specialties || [],
-      certifications: data.certifications || []
-    }
+    producer.value = producerData
 
     // フォロー中の生産者を読み込む
     if (authStore.isAuthenticated) {

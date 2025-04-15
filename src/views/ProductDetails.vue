@@ -50,9 +50,11 @@ const handleContactArtist = () => {
     return
   }
   
+  const producerId = String(nft.value.artistId)
+  
   router.push({
     name: 'producer-details',
-    params: { id: nft.value.artistId }
+    params: { id: producerId }
   })
 }
 </script>
