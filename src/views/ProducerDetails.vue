@@ -39,7 +39,16 @@ onMounted(async () => {
       throw new Error('プロデューサーが見つかりません')
     }
 
-    producer.value = data
+    producer.value = {
+      ...data,
+      image: data.image || '/default-producer.jpg',
+      description: data.description || 'プロフィールはありません',
+      rating: data.rating || 0,
+      followers: data.followers || 0,
+      artworks: data.artworks || 0,
+      specialties: data.specialties || [],
+      certifications: data.certifications || []
+    }
 
     // フォロー中の生産者を読み込む
     if (authStore.isAuthenticated) {
@@ -86,7 +95,7 @@ const handleFollow = async () => {
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
         <div class="relative h-64">
           <img
-            :src="producer.image || '/default-producer.jpg'"
+            :src="producer.image"
             :alt="producer.name"
             class="w-full h-full object-cover"
           />
@@ -124,22 +133,22 @@ const handleFollow = async () => {
         <div class="p-6">
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">プロフィール</h2>
-            <p class="text-gray-600 dark:text-gray-300">{{ producer.description || 'プロフィールはありません' }}</p>
+            <p class="text-gray-600 dark:text-gray-300">{{ producer.description }}</p>
           </div>
 
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">統計情報</h2>
             <div class="grid grid-cols-3 gap-4">
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.rating || 0 }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.rating }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">評価</div>
               </div>
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.followers || 0 }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.followers }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">フォロワー</div>
               </div>
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600">{{ producer.artworks || 0 }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ producer.artworks }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">作品数</div>
               </div>
             </div>

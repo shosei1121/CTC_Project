@@ -45,6 +45,11 @@ const handlePurchase = () => {
 }
 
 const handleContactArtist = () => {
+  if (!nft.value?.artistId) {
+    error.value = '生産者情報が見つかりません'
+    return
+  }
+  
   router.push({
     name: 'producer-details',
     params: { id: nft.value.artistId }
