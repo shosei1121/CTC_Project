@@ -1,11 +1,45 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useNftsStore } from '@/stores/nfts'
 
 const nftsStore = useNftsStore()
 const nfts = ref([])
 const loading = ref(true)
 const error = ref(null)
+
+// ソートオプション
+const sortOptions = [
+  { value: 'price-asc', label: '価格の安い順' },
+  { value: 'price-desc', label: '価格の高い順' },
+  { value: 'rating-desc', label: '評価の高い順' },
+  { value: 'name-asc', label: '名前順（A-Z）' },
+  { value: 'name-desc', label: '名前順（Z-A）' },
+  { value: 'sales-desc', label: '販売数の多い順' }
+]
+
+const selectedSort = ref('price-asc')
+
+// ソートされたNFTリスト
+const sortedNfts = computed(() => {
+  const nftsList = [...nfts.value]
+  
+  switch (selectedSort.value) {
+    case 'price-asc':
+      return nftsList.sort((a, b) => a.price - b.price)
+    case 'price-desc':
+      return nftsList.sort((a, b) => b.price - a.price)
+    case 'rating-desc':
+      return nftsList.sort((a, b) => b.rating - a.rating)
+    case 'name-asc':
+      return nftsList.sort((a, b) => a.name.localeCompare(b.name, 'ja'))
+    case 'name-desc':
+      return nftsList.sort((a, b) => b.name.localeCompare(a.name, 'ja'))
+    case 'sales-desc':
+      return nftsList.sort((a, b) => b.sales - a.sales)
+    default:
+      return nftsList
+  }
+})
 
 onMounted(async () => {
   try {
@@ -21,9 +55,24 @@ onMounted(async () => {
 
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-      NFTマーケットプレイス
-    </h1>
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        NFTマーケットプレイス
+      </h1>
+      
+      <div class="flex items-center space-x-4">
+        <label for="sort" class="text-sm font-medium text-gray-700 dark:text-gray-300">並び替え:</label>
+        <select
+          id="sort"
+          v-model="selectedSort"
+          class="block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+        >
+          <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
 
     <div v-if="loading" class="flex justify-center items-center h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -35,7 +84,7 @@ onMounted(async () => {
 
     <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       <RouterLink
-        v-for="nft in nfts"
+        v-for="nft in sortedNfts"
         :key="nft.id"
         :to="`/product/${nft.id}`"
         class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow group"

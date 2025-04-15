@@ -17,21 +17,36 @@ const error = ref(null)
 onMounted(async () => {
   try {
     loading.value = true
+    const producerId = route.params.id
+
+    if (!producerId) {
+      throw new Error('生産者IDが指定されていません')
+    }
+
     // Supabaseから生産者情報を取得
     const { data, error: err } = await supabase
       .from('producer_profiles')
       .select('*')
-      .eq('id', route.params.id)
+      .eq('id', producerId)
       .single()
 
-    if (err) throw err
+    if (err) {
+      console.error('Supabase error:', err)
+      throw new Error('生産者情報の取得に失敗しました')
+    }
+
     if (!data) {
       throw new Error('プロデューサーが見つかりません')
     }
+
     producer.value = data
+
     // フォロー中の生産者を読み込む
-    await producerStore.loadFollowedProducers()
+    if (authStore.isAuthenticated) {
+      await producerStore.loadFollowedProducers()
+    }
   } catch (e) {
+    console.error('Error:', e)
     error.value = e.message
   } finally {
     loading.value = false
@@ -51,6 +66,7 @@ const handleFollow = async () => {
       await producerStore.followProducer(producer.value.id)
     }
   } catch (e) {
+    console.error('Follow error:', e)
     error.value = e.message
   }
 }
@@ -70,7 +86,7 @@ const handleFollow = async () => {
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
         <div class="relative h-64">
           <img
-            :src="producer.image"
+            :src="producer.image || '/default-producer.jpg'"
             :alt="producer.name"
             class="w-full h-full object-cover"
           />
@@ -83,6 +99,7 @@ const handleFollow = async () => {
                 <p class="text-white/90">{{ producer.location }}</p>
               </div>
               <button
+                v-if="authStore.isAuthenticated"
                 @click="handleFollow"
                 class="px-6 py-2 rounded-full text-sm font-medium transition-colors"
                 :class="[
@@ -93,6 +110,13 @@ const handleFollow = async () => {
               >
                 {{ producerStore.isFollowing(producer.id) ? 'フォロー中' : 'フォローする' }}
               </button>
+              <button
+                v-else
+                @click="router.push('/auth')"
+                class="px-6 py-2 rounded-full text-sm font-medium bg-white text-blue-500 hover:bg-blue-50 transition-colors"
+              >
+                ログインしてフォロー
+              </button>
             </div>
           </div>
         </div>
@@ -100,7 +124,7 @@ const handleFollow = async () => {
         <div class="p-6">
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">プロフィール</h2>
-            <p class="text-gray-600 dark:text-gray-300">{{ producer.description }}</p>
+            <p class="text-gray-600 dark:text-gray-300">{{ producer.description || 'プロフィールはありません' }}</p>
           </div>
 
           <div class="mb-6">
@@ -121,7 +145,7 @@ const handleFollow = async () => {
             </div>
           </div>
 
-          <div class="mb-6">
+          <div v-if="producer.specialties?.length" class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">主な生産物</h2>
             <div class="flex flex-wrap gap-2">
               <span
@@ -134,7 +158,7 @@ const handleFollow = async () => {
             </div>
           </div>
 
-          <div class="mb-6">
+          <div v-if="producer.certifications?.length" class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">認証</h2>
             <div class="flex flex-wrap gap-2">
               <span
