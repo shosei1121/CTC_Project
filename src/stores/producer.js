@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
 import { useAuthStore } from './auth'
 
 export const useProducerStore = defineStore('producer', () => {
@@ -10,7 +9,7 @@ export const useProducerStore = defineStore('producer', () => {
   const error = ref(null)
 
   const isFollowing = computed(() => (producerId) => {
-    return followedProducers.value.some(follow => follow.producer_id === producerId)
+    return followedProducers.value.includes(producerId)
   })
 
   async function loadFollowedProducers() {
@@ -18,21 +17,9 @@ export const useProducerStore = defineStore('producer', () => {
 
     try {
       loading.value = true
-      const { data, error: err } = await supabase
-        .from('follows')
-        .select(`
-          producer_id,
-          producer_profiles (
-            id,
-            name,
-            location,
-            image
-          )
-        `)
-        .eq('user_id', authStore.user.id)
-
-      if (err) throw err
-      followedProducers.value = data
+      // ローカルストレージからフォロー中の生産者を読み込む
+      const storedFollows = localStorage.getItem(`followedProducers_${authStore.user.id}`)
+      followedProducers.value = storedFollows ? JSON.parse(storedFollows) : []
     } catch (err) {
       error.value = '生産者の読み込みに失敗しました'
       console.error('Error loading followed producers:', err)
@@ -46,15 +33,11 @@ export const useProducerStore = defineStore('producer', () => {
 
     try {
       loading.value = true
-      const { error: err } = await supabase
-        .from('follows')
-        .insert({
-          user_id: authStore.user.id,
-          producer_id: producerId
-        })
-
-      if (err) throw err
-      await loadFollowedProducers()
+      if (!followedProducers.value.includes(producerId)) {
+        followedProducers.value.push(producerId)
+        // ローカルストレージに保存
+        localStorage.setItem(`followedProducers_${authStore.user.id}`, JSON.stringify(followedProducers.value))
+      }
       return true
     } catch (err) {
       error.value = 'フォローに失敗しました'
@@ -70,14 +53,9 @@ export const useProducerStore = defineStore('producer', () => {
 
     try {
       loading.value = true
-      const { error: err } = await supabase
-        .from('follows')
-        .delete()
-        .eq('user_id', authStore.user.id)
-        .eq('producer_id', producerId)
-
-      if (err) throw err
-      await loadFollowedProducers()
+      followedProducers.value = followedProducers.value.filter(id => id !== producerId)
+      // ローカルストレージに保存
+      localStorage.setItem(`followedProducers_${authStore.user.id}`, JSON.stringify(followedProducers.value))
       return true
     } catch (err) {
       error.value = 'フォロー解除に失敗しました'
