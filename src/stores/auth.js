@@ -11,11 +11,53 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
   const returnPath = ref('/')
   const walletAddress = ref(null)
+  const isMetaMaskConnected = ref(false)
 
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => !!user.value || !!walletAddress.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
   const isProducer = computed(() => user.value?.role === 'producer')
   const isMetaMaskUser = computed(() => !!walletAddress.value)
+
+  // メタマスクの接続状態を確認
+  const checkMetaMaskConnection = async () => {
+    if (typeof window.ethereum === 'undefined') {
+      return false
+    }
+
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+      if (accounts.length > 0) {
+        walletAddress.value = accounts[0]
+        isMetaMaskConnected.value = true
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking MetaMask connection:', error)
+      return false
+    }
+  }
+
+  // メタマスクに接続
+  const connectMetaMask = async () => {
+    if (typeof window.ethereum === 'undefined') {
+      throw new Error('MetaMaskがインストールされていません')
+    }
+
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+      if (accounts.length > 0) {
+        walletAddress.value = accounts[0]
+        isMetaMaskConnected.value = true
+        await signInWithMetaMask(accounts[0])
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error connecting to MetaMask:', error)
+      throw error
+    }
+  }
 
   async function signUp(email, password) {
     try {
@@ -103,7 +145,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       user.value = foundUser
       walletAddress.value = address
-      
+      isMetaMaskConnected.value = true
+
+      router.push(returnPath.value)
       return { data: foundUser, error: null }
     } catch (error) {
       return { data: null, error }
@@ -115,26 +159,32 @@ export const useAuthStore = defineStore('auth', () => {
   function signOut() {
     user.value = null
     walletAddress.value = null
-    returnPath.value = '/'
-    router.push('/auth')
+    isMetaMaskConnected.value = false
+    router.push('/')
   }
 
   function setReturnPath(path) {
     returnPath.value = path
   }
 
+  // 初期化時にメタマスクの接続状態を確認
+  checkMetaMaskConnection()
+
   return {
     user,
     loading,
+    walletAddress,
+    isMetaMaskConnected,
     isAuthenticated,
     isAdmin,
     isProducer,
     isMetaMaskUser,
-    walletAddress,
     signUp,
     signIn,
     signInWithMetaMask,
     signOut,
-    setReturnPath
+    setReturnPath,
+    connectMetaMask,
+    checkMetaMaskConnection
   }
 })
