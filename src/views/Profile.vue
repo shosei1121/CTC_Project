@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProducerStore } from '@/stores/producer'
+import { producers } from '@/data/producers'
 
 const authStore = useAuthStore()
 const producerStore = useProducerStore()
@@ -11,6 +12,13 @@ const user = ref({
   email: 'shosei723@rakuten.jp',
   points: 0,
   nfts: []
+})
+
+// フォロー中の生産者の詳細情報を取得
+const followedProducersDetails = computed(() => {
+  return producerStore.followedProducers.map(producerId => 
+    producers.find(p => p.id === producerId)
+  ).filter(Boolean)
 })
 
 const handleMetaMaskConnect = async () => {
@@ -87,26 +95,26 @@ onMounted(() => {
     <!-- Following Producers -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">フォロー中の生産者</h3>
-      <div v-if="producerStore.followedProducers.length === 0" class="text-gray-600 dark:text-gray-300 text-center py-8">
+      <div v-if="followedProducersDetails.length === 0" class="text-gray-600 dark:text-gray-300 text-center py-8">
         フォロー中の生産者はいません
       </div>
       <div v-else class="space-y-4">
         <div
-          v-for="follow in producerStore.followedProducers"
-          :key="follow.producer_id"
+          v-for="producer in followedProducersDetails"
+          :key="producer.id"
           class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
         >
           <img
-            :src="follow.producer_profiles.image"
-            :alt="follow.producer_profiles.name"
+            :src="producer.image"
+            :alt="producer.name"
             class="w-12 h-12 rounded-full object-cover"
           />
           <div>
             <h4 class="font-medium text-gray-900 dark:text-white">
-              {{ follow.producer_profiles.name }}
+              {{ producer.name }}
             </h4>
             <p class="text-sm text-gray-600 dark:text-gray-300">
-              {{ follow.producer_profiles.location }}
+              {{ producer.location }}
             </p>
           </div>
         </div>
