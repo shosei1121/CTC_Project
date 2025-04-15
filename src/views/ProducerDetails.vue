@@ -2,12 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useProducersStore } from '@/stores/producers'
+import { useProducerStore } from '@/stores/producer'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
-const producersStore = useProducersStore()
+const producerStore = useProducerStore()
 
 const producer = ref(null)
 const loading = ref(true)
@@ -21,6 +21,8 @@ onMounted(async () => {
       throw new Error('プロデューサーが見つかりません')
     }
     producer.value = producerData
+    // フォロー中の生産者を読み込む
+    await producerStore.loadFollowedProducers()
   } catch (e) {
     error.value = e.message
   } finally {
@@ -28,16 +30,20 @@ onMounted(async () => {
   }
 })
 
-const handleFollow = () => {
+const handleFollow = async () => {
   if (!authStore.isAuthenticated) {
     router.push('/auth')
     return
   }
 
-  if (producersStore.isFollowing(producer.value.id)) {
-    producersStore.unfollowProducer(producer.value.id)
-  } else {
-    producersStore.followProducer(producer.value.id)
+  try {
+    if (producerStore.isFollowing(producer.value.id)) {
+      await producerStore.unfollowProducer(producer.value.id)
+    } else {
+      await producerStore.followProducer(producer.value.id)
+    }
+  } catch (e) {
+    error.value = e.message
   }
 }
 </script>
@@ -72,12 +78,12 @@ const handleFollow = () => {
                 @click="handleFollow"
                 class="px-6 py-2 rounded-full text-sm font-medium transition-colors"
                 :class="[
-                  producersStore.isFollowing(producer.id)
+                  producerStore.isFollowing(producer.id)
                     ? 'bg-blue-500 text-white hover:bg-blue-600'
                     : 'bg-white text-blue-500 hover:bg-blue-50'
                 ]"
               >
-                {{ producersStore.isFollowing(producer.id) ? 'フォロー中' : 'フォローする' }}
+                {{ producerStore.isFollowing(producer.id) ? 'フォロー中' : 'フォローする' }}
               </button>
             </div>
           </div>

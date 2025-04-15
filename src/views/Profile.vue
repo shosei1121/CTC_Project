@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProducerStore } from '@/stores/producer'
 
@@ -10,9 +10,16 @@ const user = ref({
   name: 'shosei723',
   email: 'shosei723@rakuten.jp',
   points: 0,
-  walletConnected: false,
   nfts: []
 })
+
+const handleMetaMaskConnect = async () => {
+  try {
+    await authStore.connectMetaMask()
+  } catch (error) {
+    console.error('MetaMask connection error:', error)
+  }
+}
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
@@ -44,7 +51,23 @@ onMounted(() => {
         </div>
       </div>
       
-      <button class="mt-4 w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center">
+      <!-- MetaMask Connection Status -->
+      <div v-if="authStore.isMetaMaskConnected" class="mt-4 p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <span class="text-green-500 mr-2">🦊</span>
+            <span class="text-green-700 dark:text-green-300">MetaMask接続済み</span>
+          </div>
+          <span class="text-sm text-green-600 dark:text-green-400">
+            {{ authStore.walletAddress?.slice(0, 6) }}...{{ authStore.walletAddress?.slice(-4) }}
+          </span>
+        </div>
+      </div>
+      <button 
+        v-else
+        @click="handleMetaMaskConnect"
+        class="mt-4 w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
+      >
         <span class="mr-2">🦊</span>
         MetaMask接続
       </button>
@@ -53,7 +76,10 @@ onMounted(() => {
     <!-- NFTs -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">所有NFT</h3>
-      <div class="text-gray-600 dark:text-gray-300 text-center py-8">
+      <div v-if="!authStore.isMetaMaskConnected" class="text-gray-600 dark:text-gray-300 text-center py-8">
+        MetaMaskに接続してNFTを表示
+      </div>
+      <div v-else-if="user.nfts.length === 0" class="text-gray-600 dark:text-gray-300 text-center py-8">
         所有しているNFTはありません
       </div>
     </div>
@@ -90,7 +116,10 @@ onMounted(() => {
     <!-- Transaction History -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">取引履歴</h3>
-      <div class="text-gray-600 dark:text-gray-300 text-center py-8">
+      <div v-if="!authStore.isMetaMaskConnected" class="text-gray-600 dark:text-gray-300 text-center py-8">
+        MetaMaskに接続して取引履歴を表示
+      </div>
+      <div v-else class="text-gray-600 dark:text-gray-300 text-center py-8">
         取引履歴はありません
       </div>
     </div>
